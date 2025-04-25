@@ -15,16 +15,18 @@ export default function EventManagementPage() {
 
     const ownedEvents = useAppSelector(state => state.ownedEvents.events);
     const ownedError = useAppSelector(state => state.ownedEvents.error);
+
     const joinedEvents = useAppSelector(state => state.joinedEvents.events);
     const joinedError = useAppSelector(state => state.joinedEvents.error);
 
     useEffect(() => {
-            dispatch(fetchOwnedEvents());
-            dispatch(fetchJoinedEvents());
-        }, [dispatch]);
+        dispatch(fetchOwnedEvents());
+        dispatch(fetchJoinedEvents());
+    }, [dispatch]);
 
-        if (ownedError || joinedError) {
-                 return <div>Error: {ownedError || joinedError}</div>;}
+    if (ownedError || joinedError) {
+        return <div>Error: {ownedError || joinedError}</div>;
+    }
 
     console.log(ownedEvents);
 
@@ -36,26 +38,27 @@ export default function EventManagementPage() {
             <div>
                 <Navbar toggleSidebar={toggleSidebar} />
                 <div className={`mt-20 ml-10 flex flex-col gap-y-4 transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-8'}`}>
-                    <h1 className="font-bold text-2xl">Owned Events</h1>
-                    {ownedEvents.map(event => {
-                        return (
-                            <EventManagementCard
-                                key={event._id}
-                                _id={event._id}
-                                eventName={event.eventName}
-                                eventDescription={event.eventDescription}
-                                images={event.images}
-                                isPublic={event.public}
-                                eventLocation={event.eventLocation}
-                                eventTime={event.eventTime}
-                                joinedUsers={event.joinedUsers}
+                    <div className="flex flex-col gap-y-4">
+                        <h1 className="font-bold text-3xl">Owned Events</h1>
+                        {ownedEvents.map(event => {
+                            return (
+                                <EventManagementCard
+                                    key={event._id}
+                                    _id={event._id}
+                                    eventName={event.eventName}
+                                    eventDescription={event.eventDescription}
+                                    images={event.images}
+                                    isPublic={event.public}
+                                    eventLocation={event.eventLocation}
+                                    eventTime={event.eventTime}
+                                    joinedUsers={event.joinedUsers}
 
-                            />
-                        )
-                    })
-                    }
-                </div>
-                <div className="flex flex-col gap-y-4">
+                                />
+                            )
+                        })
+                        }
+                    </div>
+                    <div className="flex flex-col gap-y-4">
                         <h1 className="font-bold text-2xl">Joined Events</h1>
                         {joinedEvents.map(event => {
                             return (
@@ -75,6 +78,7 @@ export default function EventManagementPage() {
                         })
                         }
                     </div>
+                </div>
             </div>
         </div>
     )

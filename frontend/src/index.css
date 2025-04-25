@@ -1,4 +1,5 @@
 @import "tailwindcss";
+/* index.css */
 body {
     background-color: oklch(96.2% 0.059 95.617); /* This is similar to Tailwind's bg-gray-100 */
     margin: 0;

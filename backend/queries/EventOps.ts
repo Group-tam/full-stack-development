@@ -5,7 +5,6 @@ const g_coRouter = g_coExpress.Router()
 import g_coDb from "../server/db.ts"
 
 const g_coEvents = g_coDb.collection("events")
-const g_coInvitations = g_coDb.collection("invitations")
 
 import g_codes from "../server/statuses.ts"
 import { ObjectId } from "mongodb"
@@ -27,7 +26,8 @@ g_coRouter.post("/", g_coExpress.json(), async function (a_oRequest, a_oResponse
 			public: isPublic,
 			images: new ObjectId(images),
 			organiserID: a_oRequest.session["User ID"],
-			participation: [],
+			invitations: [],
+			requests: [],
 			discussionBoard: [],
 			notifications: [],
 			joinedUsers: [],
@@ -59,82 +59,6 @@ g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oRe
 		a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" })
 	}
 })
-
-g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
-	try {
-	  const eventId = a_oRequest.params.id;
-	  const { userIds } = a_oRequest.body;
-	  const senderId = a_oRequest.session["User ID"];
-  
-	  // Verify ownership
-	  const event = await g_coEvents.findOne({
-		_id: new ObjectId(eventId),
-		organiserID: new ObjectId(senderId)
-	  });
-  
-	  if (!event) {
-		return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" });
-	  }
-  
-	  // Check for any duplicates first
-	  const duplicateUserIds: string[] = [];
-	  for (const userId of userIds) {
-		const existing = await g_coInvitations.findOne({
-		  eventId: new ObjectId(eventId),
-		  receiverId: new ObjectId(userId),
-		  senderId: new ObjectId(senderId)
-		});
-		if (existing) {
-		  duplicateUserIds.push(userId);
-		}
-	  }
-  
-	  // If any duplicates found, abort and return error
-	  if (duplicateUserIds.length > 0) {
-		return a_oResponse.status(g_codes("Conflict")).json({
-		  error: "Some invitations already exist",
-		  duplicateUserIds
-		});
-	  }
-  
-	  // No duplicates, proceed to create invitations and update event/user
-	  const invitationResults = await Promise.all(
-		userIds.map(async (userId: string) => {
-		  const invitation = await g_coInvitations.insertOne({
-			eventId: new ObjectId(eventId),
-			receiverId: new ObjectId(userId),
-			senderId: new ObjectId(senderId),
-			state: "Not responded"
-		  });
-		  return {
-			receiverId: userId,
-			invitationId: invitation.insertedId
-		  };
-		})
-	  );
-  
-	  // Update event's participation array
-	  await g_coEvents.updateOne(
-		{ _id: new ObjectId(eventId) },
-		{ $push: { participation: { $each: invitationResults.map(result => result.invitationId) } } }
-	  );
-  
-	  // Update each user's invitations array
-	  await Promise.all(
-		invitationResults.map(async ({ receiverId, invitationId }) => {
-		  await g_coUsers.updateOne(
-			{ _id: new ObjectId(receiverId) },
-			{ $push: { invitations: invitationId } }
-		  );
-		})
-	  );
-  
-	  a_oResponse.sendStatus(g_codes("Success"));
-	} catch (error) {
-	  console.error("Invite error:", error);
-	  a_oResponse.status(g_codes("Server error")).json({ error: "Invite failed" });
-	}
-  })
 
 g_coRouter.get("/", async function(a_oRequest, a_oResponse) {
 	try {
@@ -187,7 +111,6 @@ g_coRouter.get("/owned", async function(a_oRequest, a_oResponse) {
 	}
 })
 
-
 g_coRouter.get("/joined", async function(a_oRequest, a_oResponse) {
 	try {
 		const userId = a_oRequest.session["User ID"]
@@ -200,6 +123,7 @@ g_coRouter.get("/joined", async function(a_oRequest, a_oResponse) {
 		a_oResponse.status(g_codes("Server error"))
 	}
 })
+
 g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
     try {
 		const l_oId = new ObjectId(a_oRequest.params.id)
@@ -230,7 +154,7 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
         const userId = a_oRequest.session["User ID"]
         
 		  // Validate request body
-		  const { eventName, eventLocation, eventDescription } = a_oRequest.body
+		  const { eventName, eventLocation, eventDescription } = a_oRequest.body;
 
         // Validate ObjectIDs
         if (!ObjectId.isValid(eventId) || !ObjectId.isValid(userId)) {

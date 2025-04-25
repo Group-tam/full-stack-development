@@ -54,6 +54,21 @@ g_coRouter.get("/", g_cookieParser(), async function(a_oRequest, a_oResponse) {
 		return a_oResponse.status(g_codes("Server error")).json(a_oError)
 	}
 })
+g_coRouter.get("/sent", async function(a_oRequest, a_oResponse) {
+	try {
+		const userId = a_oRequest.session["User ID"]
+
+		const l_aResponse = await g_coRequests.find({
+			senderId: userId,
+		}).toArray();
+
+		a_oResponse.status(g_codes("Success")).json(l_aResponse)
+	} catch (a_oError) {
+		console.log(a_oError)
+		return a_oResponse.status(g_codes("Server error")).json(a_oError)
+	}
+})
+
 g_coRouter.put("/", function(a_oRequest, a_oResponse) {
 	
 })

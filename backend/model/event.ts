@@ -10,13 +10,22 @@ export default {
 					bsonType: "bool",
 					title: "Whether or not the event is public."
 				},
-				participation: {
+				invitations: {
 					bsonType: "array",
-					title: "The invitations to the event./ The requests sent to the event.",
+					title: "The invitations to the event.",
 					uniqueItems: true,
 					items: {
 						bsonType: "objectId",
 						title: "An invitation to the event."
+					}
+				},
+				requests: {
+					bsonType: "array",
+					title: "The requests to join the event.",
+					uniqueItems: true,
+					items: {
+						bsonType: "objectId",
+						title: "A request to join the event."
 					}
 				},
 				discussionBoard: {

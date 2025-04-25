@@ -1,5 +1,5 @@
+
 import { Link } from 'react-router-dom';
-import LogoutButton from '../components/LogoutButton';
 
 function HomePage() {
     return (
@@ -40,10 +40,6 @@ function HomePage() {
                     Join Us Now
                 </Link>
             </div>
-            <>
-         <h1>This is the home page</h1>
-         <LogoutButton />
-       </>
         </div>
 
     // Adding sidebar

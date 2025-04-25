@@ -66,7 +66,7 @@ export default {
 				},
 				requests: {
 					bsonType: "array",
-					title: "All public requests the user has requested",
+					title: "All public requests the user has received",
 					uniqueItems: true,
 					items: {
 						bsonType: "objectId",

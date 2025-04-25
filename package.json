@@ -15,8 +15,5 @@
 		"mongodb": "latest",
 		"morgan": "latest",
 		"multer": "latest"
-	},
-	"devDependencies": {
-		"@types/node": "^22.14.1"
 	}
 }

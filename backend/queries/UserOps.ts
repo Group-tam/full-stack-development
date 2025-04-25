@@ -11,9 +11,6 @@ import "dotenv/config"
 import g_codes from "../server/statuses.ts"
 import { ObjectId } from "mongodb"
 import { getGridFSBucket } from "../server/gridfs.ts"
-import multer from "multer"
-import { Readable } from "stream"
-import { uploadImage } from '../server/imageUpload.ts'
 
 //g_coApp.use(g_coExpress.json())
 // HTTP methods for the user operations in this Express router
@@ -25,10 +22,10 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
   password: 'examplePASSWORD123!',
   email: 'fallsgravity437@gmail.com' 
 }*/
-	const { username, password, email, avatar } = a_oRequest.body
+	const { username, password, email } = a_oRequest.body
 //console.log(a_oRequest.body)
 	// Validate required fields Correct
-	if (!username || !password || !email || !avatar) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing required fields" })
+	if (!username || !password || !email) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing required fields" })
 
 	try {
 		// Existing user check  Correct
@@ -62,9 +59,8 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 			organisedEvents: [],
 			eventLimits: BigInt(0),
 			invitationLimits: BigInt(0),
-			avatar: new ObjectId(avatar),
+			avatar: null,
 			requests: [],
-			invitations: []
 			
 		})
 		a_oResponse.sendStatus(g_codes("Created")) //  Correct success status
@@ -77,41 +73,28 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 import g_coFilter from "../filters/UserFilter.ts"
 
 // GET Route update
-g_coRouter.get("/", async function(a_oRequest,  a_oResponse) {
+g_coRouter.get("/", async function(req, res) {
 	try {
 		const results = await g_coUsers.find(
-			g_coFilter(a_oRequest.body) // Use body instead of cookies
+			g_coFilter(req.body) // Use body instead of cookies
 		).toArray()
-		a_oResponse.status(g_codes("Success")).json(results)
+		res.status(g_codes("Success")).json(results)
 	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json(error)
+		res.status(g_codes("Server error")).json(error)
 	}
 })
-// GET Route for current user
-g_coRouter.get("/me", async function(a_oRequest, a_oResponse) {
+
+g_coRouter.get("/:id", async function(req, res) {
 	try {
-		const userId = a_oRequest.session["User ID"]
-
-		// Validate session user ID
-		if (!userId) {
-			return a_oResponse.status(g_codes("Unauthorized")).json({ error: "User not logged in" })
-		}
-
-		// Fetch user details
-		const user = await g_coUsers.findOne(
-			{ _id: new ObjectId(userId) },
-			{ projection: { password: 0 } } // Exclude password from response
-		)
-
-		if (!user) {
-			return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
-		}
-
-		a_oResponse.status(g_codes("Success")).json(user)
+		const result = await g_coUsers.findOne({
+			_id: req.params.id,
+		})
+		res.status(g_codes("Success")).json(result);
 	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Error fetching user", details: error })
+		res.status(g_codes("Server error")).json(error)
 	}
 })
+
 // GET Route for avatar
 g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
     try {
@@ -126,84 +109,29 @@ g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
     }
 })
 
-// POST Route for avatar upload
-const g_co = multer();
-g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oResponse) {
-  try {
-    const file = a_oRequest.file;
-    if (!file) return a_oResponse.status(g_codes("Invalid"));
-    const stream = Readable.from(file.buffer);
-    const { id } = await uploadImage(stream, file.originalname, file.mimetype);
-    a_oResponse.status(g_codes("Success")).json({ imageId: id });
-  } catch (err) {
-    a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" });
-  }
-});
-
-g_coRouter.get("/search", async function(a_oRequest, a_oResponse) {
-	try {
-	  const query = a_oRequest.query.query as string
-	  
-	  if (!query || query.length < 1) {
-		return a_oResponse.status(g_codes("Invalid")).json({ error: "Minimum 1 character required" })
-	  }
-  
-	  const users = await g_coUsers.find({
-		username: { $regex: `^${query}`, $options: 'i' }
-	  }).project({
-		_id: 1,
-		username: 1,
-		emailAddress: 1
-	  }).limit(10).toArray()
-  
-	  a_oResponse.status(g_codes("Success")).json(users)
-	} catch (error) {
-	  console.error("Search error:", error)
-	  a_oResponse.status(g_codes("Server error")).json({ error: "Search failed" })
-	}
-  })
-
 // PUT Route update
-g_coRouter.put("/", async function(a_oRequest, a_oResponse) {
+g_coRouter.put("/", async function(req, res) {
 	try {
 		await g_coUsers.updateMany(
-			g_coFilter(a_oRequest.body),
+			g_coFilter(req.body),
 			{ $set: {
-				username: a_oRequest.body.username,
+				username: req.body.username,
 				password: await g_coBcrypt.hash(
-					a_oRequest.body.password, 
+					req.body.password, 
 					parseInt(process.env.m_saltRounds || "10")
 				),
-				emailAddress: a_oRequest.body.email,
-				admin: a_oRequest.body.admin
+				emailAddress: req.body.email,
+				admin: req.body.admin
 			} 
 		})
-		a_oResponse.sendStatus(g_codes("Success"))
+		res.sendStatus(g_codes("Success"))
 	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json(error)
+		res.status(g_codes("Server error")).json(error)
 	}
 })
 
 g_coRouter.delete("/", async function(a_oRequest, a_oResponse) {
-	try {
-		const { userId } = a_oRequest.body
-
-		// Validate required field
-		if (!userId) {
-			return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing user ID" })
-		}
-
-		// Attempt to delete the user
-		const result = await g_coUsers.deleteOne({ _id: new ObjectId(userId) })
-
-		if (result.deletedCount === 0) {
-			return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
-		}
-
-		a_oResponse.sendStatus(g_codes("Success"))
-	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Error deleting user", details: error })
-	}
+	
 })
 
 export default g_coRouter

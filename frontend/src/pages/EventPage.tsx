@@ -8,10 +8,7 @@ import {AppDispatch} from "../redux/store.ts";
 import {useAppSelector} from "../hook/hooks.ts";
 import {toggle} from "../redux/components/sidebarSlice.ts";
 import EditEventModal from "../components/EditEventModal";
-import InviteMembersModal from "../components/InviteMembersModal";
 import { fetchHandler } from "../utils/fetchHandler"
-import { fetchCurrentUser } from "../redux/auth/authSlice";  
-import type { User } from "../dataTypes/type";
 
 function EventDetail() {
 	const isSidebarOpen = useAppSelector(state => state.sidebar.isOpen)
@@ -20,39 +17,17 @@ function EventDetail() {
 	const currentEvent = useAppSelector(state => state.singleEvent.event);
 	const status = useAppSelector(state => state.singleEvent.status);
 	const navigate = useNavigate();
-	const [isInviting, setIsInviting] = useState(false);
-
 
 	const toggleSidebar = () => dispatch(toggle())
 
 	const [searchParams] = useSearchParams();
 	const ownedPara = searchParams.get("owned");
-	//const currentUserId = useAppSelector(state => state.auth.user?._id); //Attempt to get the current user ID
-	
+
 	  // modal state
 	 const [isEditing, setIsEditing] = useState(false);
-	 const [l_coInvitation, l_coSetL_coInvitation] = useState<{ state: "Accepted" | "Unanswered" | "Rejected" } | null>(null)
 	useEffect(() => {
 		if (id) dispatch(fetchSingleEvent(id))
 	}, [id, dispatch])
-	useEffect(() => {
-		(async function() {
-			if (currentEvent) {
-				document.cookie = "m_sEvent=" + currentEvent._id;
-			}
-			const l_coResponse = await fetchHandler("/request", {
-				method: "GET",
-				credentials: "include"
-			})
-			if (l_coResponse.ok) l_coSetL_coInvitation(await l_coResponse.json()); else console.error("Error fetching requests.")
-		})()
-	})
-	useEffect(() => {
-		dispatch(fetchCurrentUser());
-	  }, [dispatch]);
-
-	  const currentUser = useAppSelector((state: { auth: { user: User | null } }) => state.auth.user);
-	  const currentUserId = currentUser?._id;
 
 	if (status === 'failed') navigate('/*')
 	if (!currentEvent) return null
@@ -65,32 +40,26 @@ function EventDetail() {
 	closeEdit();
   };
 	//So now we can get the ownedPara from the URL and use it to determine if the event is owned or not
-	const handleInvite = async (userIds: string[]) => {
-        try {
-			const response = await fetchHandler(`/event/${id}/invite`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userIds })
-          });
-		  if (response.status === 409) {
-			console.log("Some of the invitations in the list have existed already.");
-			// handle the error UI here (maybe)
-			return;
-		  }
-          setIsInviting(false);
-        } catch (error) {
-          console.error("Invite failed:", error);
-        }
-      };
+	const [l_coInvitation, l_coSetL_coInvitation] = useState<{ state: "Accepted" | "Unanswered" | "Rejected" } | null>(null)
+	useEffect(() => {
+		(async function() {
+			document.cookie = "m_sEvent=" + currentEvent._id
+			const l_coResponse = await fetchHandler("/request", {
+				method: "GET",
+				credentials: "include"
+			})
+			if (l_coResponse.ok) l_coSetL_coInvitation(await l_coResponse.json()); else console.error("Error fetching requests.")
+		})()
+	})
+
 	return (
 		<>
 		
-		<div className="flex"> 
+		<div className="flex">
 			<Sidebar isOpen={isSidebarOpen} />
 			<div className="flex-1">
 				<Navbar toggleSidebar={toggleSidebar} />
-				<main className={`mt-16 px-4 py-8 ${isSidebarOpen ? 'ml-72' : 'ml-8'}`}>
+				<main className="mt-16 px-4 py-8">
 					<div className="max-w-7xl mx-auto">
 						<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 							{/* Main Event Content */}
@@ -126,7 +95,7 @@ function EventDetail() {
 							{/* Sidebar Content */}
 							<div className="lg:col-span-1">
 								<div className="bg-white p-6 rounded-lg shadow-md mb-6">
-								{ownedPara !== null &&(ownedPara === "true" ? (
+								{ownedPara === "true" ? (
 										<button  onClick={openEdit}
 										className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-colors">
 											Edit Event Details
@@ -146,39 +115,7 @@ function EventDetail() {
 										className="w-full bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold py-3 px-6 rounded-full transition-colors">
 											Request to join
 										</button>
-										))}
-
-								{ownedPara === null && (
-                                currentEvent.public === false ? (
-                                    <>
-                                    {isInviting && (
-									<InviteMembersModal
-										currentUserId={currentUserId ?? ""}
-										onCancel={() => setIsInviting(false)}
-										onSubmit={handleInvite}
-									/>
-                                    )}
-                                    <button onClick={() => setIsInviting(true)}
-                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-colors"
-                                    >
-                                    Invite members
-                                    </button> <br/><br/>
-                                        <button 
-                                        onClick={openEdit}
-                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-colors"
-                                        >
-                                        Edit Event Details
-                                        </button></>
-                                ) : (
-                                    <button 
-                                    onClick={openEdit}
-                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-colors"
-                                    >
-                                    Edit Event Details
-                                    </button>
-                                )
-                                )} 
-										
+										)}
 								</div>
 							</div>
 						</div>

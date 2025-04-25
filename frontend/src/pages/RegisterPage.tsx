@@ -3,14 +3,6 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { validatePassword, PasswordValidation, validatePasswordMatch } from '../utils/passwordValidator';
 import { getInputStyles, ValidationState } from '../utils/validationStyles';
 import {Link} from "react-router-dom";
-import AvatarUploader from '../components/AvatarUploader';
-
-interface FormData {
-  username: string;
-  email: string;
-  password: string;
-  avatar: string | null;
-}
 
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -35,12 +27,6 @@ export default function RegisterPage() {
     });
     const [isPasswordMatch, setIsPasswordMatch] = useState(false); 
     const [errorMessage, setErrorMessage] = useState('');
-    const [formData, setFormData] = useState<FormData>({
-      username: '',
-      email: '',
-      password: '',
-      avatar: null
-    });
  // Password validation handler
  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
@@ -77,10 +63,7 @@ export default function RegisterPage() {
         setErrorMessage("Username is required");
         return;
       }
-      if (!formData.avatar) {
-        setErrorMessage("Please upload an avatar");
-        return;
-      }
+    
       {
         const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
         if (!emailRegex.test(email)) {
@@ -103,7 +86,6 @@ export default function RegisterPage() {
             username,
             password,
             email,  // Match backend schema
-            avatar: formData.avatar
           }),
         });
         console.log("Response:", response); // Log response
@@ -120,13 +102,13 @@ export default function RegisterPage() {
       }
     };
 
+
+
+
     return (
       <div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-md max-w-4xl gap-4 w-full flex">
-        {/* Left Column - Existing Form */}
-        <div className="flex-1">
         {/* Main Card */}
-        <div className="bg-white p-8 rounded-lg max-w-md w-full">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
           {/* Header */}
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Create an account...
@@ -288,16 +270,6 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-        {/* Right Column - Avatar Upload */}
-        <div className="flex-1 flex flex-col justify-center">
-          <h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
-          <AvatarUploader 
-            onAvatarUpload={(imageId) => 
-              setFormData(prev => ({ ...prev, avatar: imageId }))
-            }
-          />
-        </div>
-      </div>
-    </div>
-    )
+    );
   }
+
