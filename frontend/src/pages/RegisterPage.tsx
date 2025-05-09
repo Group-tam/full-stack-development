@@ -43,7 +43,7 @@ export default function RegisterPage() {
       password: '',
       avatar: DEFAULT_AVATAR_ID
     });
-    const [avatarZoom, setAvatarZoom] = useState(1); // Add zoom state
+    const [avatarZoom, setAvatarZoom] = useState(1); 
 
     const navigate = useNavigate();
 
@@ -91,7 +91,7 @@ export default function RegisterPage() {
         }
       }
       const username = `${Name}`.trim();
-      console.log("Submitting:", { username, email }); // Log request data
+      console.log("Submitting:", { username, email }); 
       
       try {
         const response = await fetch('/user', {

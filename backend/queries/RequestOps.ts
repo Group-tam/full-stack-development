@@ -69,12 +69,13 @@ g_coRouter.get("/", async function(a_oRequest, a_oResponse) {
 	  a_oResponse.status(g_codes("Server error")).json(a_oError)
 	}
   })
-  g_coRouter.put("/", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
+g_coRouter.put("/", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
     const { requestId, newState } = a_oRequest.body
     if (!requestId || !newState) {
         return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing requestId or newState" })
     }
     try {
+        // Update the request state
         await g_coRequests.updateOne(
             { _id: ObjectId.createFromHexString(requestId) },
             { $set: { state: newState } }

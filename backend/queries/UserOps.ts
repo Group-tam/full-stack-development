@@ -14,40 +14,22 @@ import { getGridFSBucket } from "../server/gridfs.ts"
 import multer from "multer"
 import { Readable } from "stream"
 import { uploadImage } from '../server/imageUpload.ts'
-
-//g_coApp.use(g_coExpress.json())
-// HTTP methods for the user operations in this Express router
+import g_coFilter from "../filters/UserFilter.ts"
 
 g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
-   /*EXAMPLE
-   //Request body: {
-  username: 'Huy Mai2',
-  password: 'examplePASSWORD123!',
-  email: 'fallsgravity437@gmail.com' 
-}*/
 	const { username, password, email, avatar, avatarZoom } = a_oRequest.body
-//console.log(a_oRequest.body)
-	// Validate required fields Correct
 	if (!username || !password || !email || !avatar) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing required fields" })
 
 	try {
 		// Existing user check  Correct
 		
 		const existingUser = await g_coUsers.findOne({
-			$or: [
-				{ username },
-				{ emailAddress: email }
-			]
-		})
+			$or: [{ username },{ emailAddress: email }]})
 
 		// Conflict handling  Correct
 		if (existingUser) {
 			return a_oResponse.status(g_codes("Conflict")).json({ 
-				error: existingUser.username === username
-					? "Username already exists"
-					: "Email already registered"
-			})
-		}
+				error: existingUser.username === username ? "Username already exists": "Email already registered"})}
 
 		// User creation  Schema-compliant
 		await g_coUsers.insertOne({
@@ -75,27 +57,27 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 		a_oResponse.status(g_codes("Server error")).json({ error: "Server error during registration" })
 	}
 })
-
-g_coRouter.post("/verify-password", g_coExpress.json(), async (req, res) => {
-	const userId = req.session["User ID"];
-	const { password } = req.body;
-	if (!userId || !password) return res.status(g_codes("Invalid")).json({ error: "Missing fields" });
+//POST for /verify-password because:
+//It hides data in the request body.
+//It aligns with common REST API design for secure operations.
+g_coRouter.post("/verify-password", g_coExpress.json(), async (a_oRequest, a_oResponse) => {
+	const userId = a_oRequest.session["User ID"]
+	const { password } = a_oRequest.body
+	if (!userId || !password) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing fields" })
   
 	try {
-	  const user = await g_coUsers.findOne({ _id: new ObjectId(userId) });
-	  if (!user) return res.status(g_codes("Not found")).json({ error: "User not found" });
+	  const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
+	  if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
   
-	  const isMatch = await g_coBcrypt.compare(password, user.password);
-	  if (!isMatch) return res.status(g_codes("Unauthorised")).json({ error: "Incorrect password" });
+	  const isMatch = await g_coBcrypt.compare(password, user.password)
+	  if (!isMatch) return a_oResponse.status(g_codes("Unauthorised")).json({ error: "Incorrect password" })
   
-	  res.sendStatus(g_codes("Success"));
+	  a_oResponse.sendStatus(g_codes("Success"))
 	} catch (err) {
 		console.log(err)
-	  res.status(g_codes("Server error")).json({ error: "Failed to verify password" });
+	  a_oResponse.status(g_codes("Server error")).json({ error: "Failed to verify password" })
 	}
-  });
-
-import g_coFilter from "../filters/UserFilter.ts"
+  })
 
 // GET Route
 g_coRouter.get("/", async function(a_oRequest,  a_oResponse) {
@@ -104,12 +86,10 @@ g_coRouter.get("/", async function(a_oRequest,  a_oResponse) {
 			g_coFilter(a_oRequest.query) // Use query instead of cookies
 		).toArray()
 		a_oResponse.status(g_codes("Success")).json(results)
-	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json(error)
-	}
+	} catch (error) {a_oResponse.status(g_codes("Server error")).json(error)}
 })
 
-// GET Route for current user
+// GET Route for current user (securer than other available alternatives)
 g_coRouter.get("/me", async function(a_oRequest, a_oResponse) {
 	try {
 		const userId = a_oRequest.session["User ID"]
@@ -120,19 +100,12 @@ g_coRouter.get("/me", async function(a_oRequest, a_oResponse) {
 		}
 
 		// Fetch user details
-		const user = await g_coUsers.findOne(
-			{ _id: new ObjectId(userId) },
-			{ projection: { password: 0 } } // Exclude password from response
-		)
-
+		const user = await g_coUsers.findOne({ _id: new ObjectId(userId) },{ projection: { password: 0 } } )// Exclude password from response
 		if (!user) {
 			return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
 		}
-
 		a_oResponse.status(g_codes("Success")).json(user)
-	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Error fetching user", details: error })
-	}
+	} catch (error) {a_oResponse.status(g_codes("Server error")).json({ error: "Error fetching user", details: error })}
 })
 // GET Route for avatar
 g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
@@ -143,25 +116,21 @@ g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
 		downloadStream
 			.on("error", () => a_oResponse.sendStatus(g_codes("Not found")))
 			.pipe(a_oResponse)
-    } catch (a_oError) {
-        a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid ID or error fetching image", details: a_oError })
-    }
+    } catch (a_oError) {a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid ID or error fetching image", details: a_oError }) }
 })
 
 // POST Route for avatar upload
-const g_co = multer();
+const g_co = multer()
 g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oResponse) {
   try {
-    const file = a_oRequest.file;
-    if (!file) return a_oResponse.status(g_codes("Invalid"));
-    const stream = Readable.from(file.buffer);
-    const { id } = await uploadImage(stream, file.originalname, file.mimetype);
-    a_oResponse.status(g_codes("Success")).json({ imageId: id });
-  } catch (err) {
-    a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" });
-  }
-});
-
+    const file = a_oRequest.file
+    if (!file) return a_oResponse.status(g_codes("Invalid"))
+    const stream = Readable.from(file.buffer)
+    const { id } = await uploadImage(stream, file.originalname, file.mimetype)
+    a_oResponse.status(g_codes("Success")).json({ imageId: id })
+  } catch (err) { a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" }) }
+})
+// Provide flexibility for the InviteMemberModal and AccountPage
 g_coRouter.get("/search", async function(a_oRequest, a_oResponse) {
 	try {
 	  const query = a_oRequest.query.query as string
@@ -188,50 +157,39 @@ g_coRouter.get("/search", async function(a_oRequest, a_oResponse) {
 
   g_coRouter.get("/is-admin", async function(a_oRequest, a_oResponse) {
 	try {
-		const userId = a_oRequest.session["User ID"];
+		const userId = a_oRequest.session["User ID"]
 
 		// Validate session user ID
 		if (!userId) {
-			return a_oResponse.status(g_codes("Unauthorized")).json({ error: "User not logged in" });
+			return a_oResponse.status(g_codes("Unauthorized")).json({ error: "User not logged in" })
 		}
 
 		// Fetch user details (only admin field)
-		const user = await g_coUsers.findOne(
-			{ _id: userId },
-			{ projection: { admin: 1 } }
-		);
-		
+		const user = await g_coUsers.findOne({ _id: userId },{ projection: { admin: 1 } }	)
 		// Return admin status
-		a_oResponse.status(g_codes("Success")).json({ admin: user.admin });
+		a_oResponse.status(g_codes("Success")).json({ admin: user.admin })
 	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Error checking admin status", details: error });
+		a_oResponse.status(g_codes("Server error")).json({ error: "Error checking admin status", details: error })
 	}
 })
 
 // GET Route for a specific user (This get route must be at the bottom of all gets)
 g_coRouter.get("/:id", async function(a_oRequest, a_oResponse) {
     try {
-        const userId = a_oRequest.params.id;
+        const userId = a_oRequest.params.id
 
         if (!ObjectId.isValid(userId)) {
-            return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid user ID format" });
+            return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid user ID format" })
         }
 
-        const user = await g_coUsers.findOne(
-            { _id: new ObjectId(userId) },
-            { projection: { password: 0 } } // Exclude password
-        );
-
-        if (!user) {
-            return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" });
-        }
-
-        a_oResponse.status(g_codes("Success")).json(user);
+        const user = await g_coUsers.findOne({ _id: new ObjectId(userId) },{ projection: { password: 0 } } )// Exclude password
+        if (!user)  return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
+        a_oResponse.status(g_codes("Success")).json(user)
     } catch (error) {
-        console.error("User fetch error:", error);
-        a_oResponse.status(g_codes("Server error")).json({ error: "Failed to fetch user" });
+        console.error("User fetch error:", error)
+        a_oResponse.status(g_codes("Server error")).json({ error: "Failed to fetch user" })
     }
-});
+})
 
 
 // PUT Route update
@@ -250,106 +208,81 @@ g_coRouter.put("/", async function(a_oRequest, a_oResponse) {
 			} 
 		})
 		a_oResponse.sendStatus(g_codes("Success"))
-	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json(error)
-	}
+	} catch (error) {a_oResponse.status(g_codes("Server error")).json(error)}	
 })
+//A Unified put methods for username, password, and avatar updates
+// using switch case to handle different actions
+g_coRouter.put("/update/:action", g_coExpress.json(), async (a_oRequest, a_oResponse) => {
+  const userId = a_oRequest.session["User ID"]
+  const action = a_oRequest.params.action
 
-g_coRouter.put("/update-username", g_coExpress.json(), async (req, res) => {
-	const userId = req.session["User ID"];
-	const { username } = req.body;
-	if (!userId || !username) return res.status(g_codes("Invalid")).json({ error: "Missing user or username" });
-  
-	try {
-	  // Check if username is taken (except for current user)
-	  const existing = await g_coUsers.findOne({ username, _id: { $ne: new ObjectId(userId) } });
-	  if (existing) return res.status(g_codes("Conflict")).json({ error: "Username already exists" });
-  
-	  // Get old username
-	  const user = await g_coUsers.findOne({ _id: new ObjectId(userId) });
-	  if (!user) return res.status(g_codes("Not found")).json({ error: "User not found" });
-	  const oldUsername = user.username;
-  
-	  // Update username in users
-	  await g_coUsers.updateOne({ _id: new ObjectId(userId) }, { $set: { username } });
-  
-	  // Update "Sender username" in requests
-	  await g_coDb.collection("requests").updateMany(
-		{ "Sender username": oldUsername },
-		{ $set: { "Sender username": username } }
-	  );
-  
-	  res.sendStatus(g_codes("Success"));
-	} catch (err) {
-	  res.status(g_codes("Server error")).json({ error: "Failed to update username" });
-	}
-  });
+  switch (action) {
+    case 'username':
+      const { username } = a_oRequest.body
+      if (!userId || !username) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing user or username" })
+    
+      try {
+        // Check if username is taken (except for current user)
+        const existing = await g_coUsers.findOne({ username, _id: { $ne: new ObjectId(userId) } })
+        if (existing) return a_oResponse.status(g_codes("Conflict")).json({ error: "Username already exists" })
+    
+        // Get old username
+        const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
+        if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
+        const oldUsername = user.username
+    
+        // Update username in users
+        await g_coUsers.updateOne({ _id: new ObjectId(userId) }, { $set: { username } })
+    
+        // Update "Sender username" in requests
+        await g_coDb.collection("requests").updateMany({ "Sender username": oldUsername },{ $set: { "Sender username": username } } )
+        a_oResponse.sendStatus(g_codes("Success"))
+      } catch (err) {a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update username" })}
+      break
 
-  g_coRouter.put("/update-password", g_coExpress.json(), async (req, res) => {
-	const userId = req.session["User ID"];
-	const { currentPassword, newPassword } = req.body;
-	if (!userId || !currentPassword || !newPassword) return res.status(g_codes("Invalid")).json({ error: "Missing fields" });
-  
-	try {
-	  const user = await g_coUsers.findOne({ _id: new ObjectId(userId) });
-	  if (!user) return res.status(g_codes("Not found")).json({ error: "User not found" });
-  
-	  const isMatch = await g_coBcrypt.compare(currentPassword, user.password);
-	  if (!isMatch) return res.status(g_codes("Unauthorized")).json({ error: "Current password incorrect" });
-  
-	  await g_coUsers.updateOne(
-		{ _id: new ObjectId(userId) },
-		{ $set: { password: await g_coBcrypt.hash(newPassword, parseInt(process.env.m_saltRounds || "10")) } }
-	  );
-	  res.sendStatus(g_codes("Success"));
-	} catch (err) {
-	  res.status(g_codes("Server error")).json({ error: "Failed to update password" });
-	}
-  });
+    case 'password':
+      const { currentPassword, newPassword } = a_oRequest.body
+      if (!userId || !currentPassword || !newPassword) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing fields" })
+    
+      try {
+        const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
+        if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
+    
+        const isMatch = await g_coBcrypt.compare(currentPassword, user.password)
+        if (!isMatch) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Current password incorrect" })
+    
+        await g_coUsers.updateOne(
+          { _id: new ObjectId(userId) },
+          { $set: { password: await g_coBcrypt.hash(newPassword, parseInt(process.env.m_saltRounds || "10")) } }
+        )
+        a_oResponse.sendStatus(g_codes("Success"))
+      } catch (err) { a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update password" })}
+      break
 
-  g_coRouter.put("/update-avatar", g_coExpress.json(), async (req, res) => {
-  const userId = req.session["User ID"];
-  const { avatar, avatarZoom } = req.body;
-  if (!userId || !avatar) return res.status(g_codes("Invalid")).json({ error: "Missing avatar" });
-
-  try {
-    await g_coUsers.updateOne(
-      { _id: new ObjectId(userId) },
-      { 
-        $set: { 
-          avatar: new ObjectId(avatar),
-          avatarZoom: parseFloat(avatarZoom) || 1.0
-        } 
+    case 'avatar':
+      const { avatar, avatarZoom } = a_oRequest.body
+      if (!userId || !avatar) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing avatar" })
+    
+      try {
+        await g_coUsers.updateOne(
+          { _id: new ObjectId(userId) },
+          { 
+            $set: { 
+              avatar: new ObjectId(avatar),
+              avatarZoom: parseFloat(avatarZoom) || 1.0
+            } 
+          }
+        )
+        a_oResponse.sendStatus(g_codes("Success"))
+      } catch (err) {
+        console.error('Avatar update error:', err)
+        a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update avatar" })
       }
-    );
-    res.sendStatus(g_codes("Success"));
-  } catch (err) {
-    console.error('Avatar update error:', err);
-    res.status(g_codes("Server error")).json({ error: "Failed to update avatar" });
+      break
+
+    default:
+      a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid action" })
   }
-});
-
-
-g_coRouter.delete("/", async function(a_oRequest, a_oResponse) {
-	try {
-		const { userId } = a_oRequest.body
-
-		// Validate required field
-		if (!userId) {
-			return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing user ID" })
-		}
-
-		// Attempt to delete the user
-		const result = await g_coUsers.deleteOne({ _id: new ObjectId(userId) })
-
-		if (result.deletedCount === 0) {
-			return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
-		}
-
-		a_oResponse.sendStatus(g_codes("Success"))
-	} catch (error) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Error deleting user", details: error })
-	}
 })
 
 export default g_coRouter

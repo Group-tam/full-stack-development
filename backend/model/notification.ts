@@ -25,7 +25,12 @@ export default {
 				sent: {
 					bsonType: "bool",
 					title: "Whether the notification has been sent."
-				  }
+				},
+				option: {
+					bsonType: "string",
+					title: "The recipient selection option.",
+					enum: ["accepted-public", "accepted-private", "pending-private", "all-private"]
+				}
 			},
 			additionalProperties: false
 		}

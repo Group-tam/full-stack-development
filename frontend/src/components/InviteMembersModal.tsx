@@ -1,12 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { User } from '../dataTypes/type.ts';
-import { fetchHandler } from "../utils/fetchHandler.ts";
+import * as React from 'react';
+import { BaseModal, BaseModalProps } from './BaseModal';
+import { User } from '../dataTypes/type';
+import { fetchHandler } from '../utils/fetchHandler';
 
-type InviteMembersModalProps = {
-  onCancel: () => void;
+interface InviteMembersModalProps extends BaseModalProps {
   onSubmit: (emails: string[]) => Promise<void>;
   currentUserId: string;
-};
+}
+
+interface InviteMembersModalState {
+  searchTerm: string;
+  searchResults: User[];
+  selectedUsers: User[];
+  error: ErrorState | null;
+  isSubmitting: boolean;
+  permanentDuplicates: string[];
+}
 
 interface ErrorState {
   message: string;
@@ -14,193 +23,219 @@ interface ErrorState {
   success?: boolean;
 }
 
-export default function InviteMembersModal({ onCancel, onSubmit, currentUserId }: InviteMembersModalProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-  const [error, setError] = useState<ErrorState | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [permanentDuplicates, setPermanentDuplicates] = useState<string[]>([]);
-  const searchRef = useRef<HTMLDivElement>(null);
+export default class InviteMembersModal extends BaseModal<InviteMembersModalProps> {
+  private searchRef = React.createRef<HTMLDivElement>();
+  private searchTimeout: NodeJS.Timeout | null = null;
+  
+  state: InviteMembersModalState = {
+    searchTerm: '',
+    searchResults: [],
+    selectedUsers: [],
+    error: null,
+    isSubmitting: false,
+    permanentDuplicates: []
+  };
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; }
-  }, []);
-
-  useEffect(() => {
-    const handler = setTimeout(async () => {
-      if (searchTerm.trim()) {
-        try {
-          const response = await fetchHandler(`/user/search?query=${encodeURIComponent(searchTerm)}`, {
-            credentials: 'include'
-          });
-          const data = await response.json();
-          const filteredData = data.filter((user: User) => 
-            user._id !== currentUserId &&
-            !selectedUsers.some(selected => selected._id === user._id)
-          );
-          setSearchResults(filteredData);
-          setError(null);
-        } catch {
-          setError({ message: 'Failed to search users' });
-        }
-      } else {
-        setSearchResults([]);
+  private prevSearchTerm: string = '';
+  
+  componentDidUpdate(prevProps: InviteMembersModalProps) {
+    super.componentDidUpdate(prevProps);
+    
+    const currentState = this.state as InviteMembersModalState;
+    if (currentState.searchTerm !== this.prevSearchTerm) {
+      this.prevSearchTerm = currentState.searchTerm;
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
-    }, 200);
 
-    return () => clearTimeout(handler);
-  }, [searchTerm, currentUserId, selectedUsers]);
+      this.searchTimeout = setTimeout(async () => {
+        if (this.state.searchTerm.trim()) {
+          try {
+            const response = await fetchHandler(`/user/search?query=${encodeURIComponent(this.state.searchTerm)}`, {
+              credentials: 'include'
+            });
+            const data = await response.json();
+            const filteredData = data.filter((user: User) => 
+              user._id !== this.props.currentUserId &&
+              !this.state.selectedUsers.some(selected => selected._id === user._id)
+            );
+            this.setState({ searchResults: filteredData, error: null });
+          } catch {
+            this.setState({ error: { message: 'Failed to search users' } });
+          }
+        } else {
+          this.setState({ searchResults: [] });
+        }
+      }, 200);
+    }
+  }
 
-  const handleAddUser = (user: User) => {
-    if (user._id === currentUserId) return;
-    if (!selectedUsers.find(u => u._id === user._id)) {
-      setSelectedUsers(prev => [...prev, user]);
-      setSearchTerm('');
-      setError(null);
+  componentWillUnmount() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+  }
+
+  handleAddUser = (user: User) => {
+    if (user._id === this.props.currentUserId) return;
+    if (!this.state.selectedUsers.find(u => u._id === user._id)) {
+      this.setState((prev: InviteMembersModalState) => ({
+        selectedUsers: [...prev.selectedUsers, user],
+        searchTerm: '',
+        error: null
+      }));
     }
   };
 
-  const handleRemoveUser = (userId: string) => {
-    setSelectedUsers(prev => prev.filter(u => u._id !== userId));
-    setPermanentDuplicates(prev => {
-      const newDuplicates = prev.filter(id => id !== userId);
-      // Clear error message if all duplicates are removed
-      if (newDuplicates.length === 0) {
-        setError(null);
+  handleRemoveUser = (userId: string) => {
+    this.setState((prev: InviteMembersModalState) => ({
+      selectedUsers: prev.selectedUsers.filter(u => u._id !== userId),
+      permanentDuplicates: prev.permanentDuplicates.filter(id => id !== userId)
+    }), () => {
+      if (this.state.permanentDuplicates.length === 0) {
+        this.setState({ error: null });
       }
-      return newDuplicates;
     });
   };
 
-  const handleSubmit = async () => {
-    if (selectedUsers.length === 0) {
-      setError({ message: 'Please select at least one user' });
+  handleSubmit = async () => {
+    if (this.state.selectedUsers.length === 0) {
+      this.setState({ error: { message: 'Please select at least one user' } });
       return;
     }
 
-    setIsSubmitting(true);
+    this.setState({ isSubmitting: true });
     try {
-      await onSubmit(selectedUsers.map(user => user._id));
-      // onCancel();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (err?.duplicateUserIds) {
-        setPermanentDuplicates(err.duplicateUserIds);
-        setError({
-          message: 'Some users have already been invited',
-          duplicateIds: err.duplicateUserIds
+      await this.props.onSubmit(this.state.selectedUsers.map(user => user._id));
+    } catch (err) {
+      const error = err as { duplicateUserIds?: string[] };
+      if (error?.duplicateUserIds) {
+        this.setState({
+          permanentDuplicates: error.duplicateUserIds,
+          error: {
+            message: 'Some users have already been invited',
+            duplicateIds: error.duplicateUserIds
+          }
         });
       } else {
-        //Actually there is no error here, this is a cheat to show success message
-        setError({ message: 'Invitations sent successfully!', success: true }); 
+        this.setState({
+          error: { message: 'Invitations sent successfully!', success: true }
+        });
       }
     } finally {
-      setIsSubmitting(false);
+      this.setState({ isSubmitting: false });
     }
   };
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="fixed inset-0 bg-opacity-40 backdrop-blur-sm" onClick={onCancel} />
-      
-      <div className="relative bg-white rounded-lg p-6 w-full max-w-lg space-y-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-        >
-          ✕
-        </button>
+  render() {
+    const { show, onClose } = this.props;
+    const { searchTerm, searchResults, selectedUsers, error, isSubmitting, permanentDuplicates } = this.state;
 
-        <h2 className="text-2xl font-bold mb-4">Invite Members</h2>
+    if (!show) return null;
 
-        <div className="space-y-4" ref={searchRef}>
-          <div className="relative">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search users..."
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            
-            {searchTerm && searchResults.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-auto">
-                {searchResults.map(user => (
-                  <div
-                    key={user._id}
-                    onClick={() => handleAddUser(user)}
-                    className="p-2 hover:bg-green-50 cursor-pointer transition-colors"
-                  >
-                    {user.username}
-                  </div>
-                ))}
+    return (
+      <div className={this.modalStyles.overlay}>
+        <div className={this.modalStyles.backdrop} onClick={onClose} />
+        
+        <div className={this.modalStyles.container}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+
+          <h2 className={this.modalStyles.title}>Invite Members</h2>
+
+          <div className="space-y-4" ref={this.searchRef}>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => this.setState({ searchTerm: e.target.value })}
+                placeholder="Search users..."
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              
+              {searchTerm && searchResults.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {searchResults.map(user => (
+                    <button
+                      key={user._id}
+                      onClick={() => this.handleAddUser(user)}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                    >
+                      {user.username}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {error && (
+              <div className={`border-l-4 p-4 rounded ${
+                error.success 
+                  ? 'bg-green-50 border-green-400' 
+                  : 'bg-red-50 border-red-400'
+              }`}>
+                <p className={`text-sm ${
+                  error.success 
+                    ? 'text-green-700' 
+                    : 'text-red-700'
+                }`}>
+                  {error.message}
+                </p>
               </div>
             )}
-          </div>
 
-          {error && (
-            <div className={`border-l-4 p-4 rounded ${
-              error.success 
-                ? 'bg-green-50 border-green-400' 
-                : 'bg-red-50 border-red-400'
-            }`}>
-              <p className={`text-sm ${
-                error.success 
-                  ? 'text-green-700' 
-                  : 'text-red-700'
-              }`}>{error.message}</p>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            {selectedUsers.map(user => (
-              <div
-                key={user._id}
-                className={`flex items-center px-3 py-1 rounded-full transition-colors ${
-                  permanentDuplicates.includes(user._id) || error?.duplicateIds?.includes(user._id)
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-green-100 text-green-800'
-                }`}
-              >
-                <span>{user.username}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveUser(user._id)}
-                  className={`ml-2 ${
+            <div className="flex flex-wrap gap-2">
+              {selectedUsers.map(user => (
+                <div
+                  key={user._id}
+                  className={`flex items-center px-3 py-1 rounded-full transition-colors ${
                     permanentDuplicates.includes(user._id) || error?.duplicateIds?.includes(user._id)
-                      ? 'text-red-600 hover:text-red-800'
-                      : 'text-green-600 hover:text-green-800'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-green-100 text-green-800'
                   }`}
                 >
-                  ×
-                </button>
-              </div>
-            ))}
+                  {user.username}
+                  <button
+                    type="button"
+                    onClick={() => this.handleRemoveUser(user._id)}
+                    className={`ml-2 ${
+                      permanentDuplicates.includes(user._id) || error?.duplicateIds?.includes(user._id)
+                        ? 'text-red-600 hover:text-red-800'
+                        : 'text-green-600 hover:text-green-800'
+                    }`}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 font-medium text-gray-700 hover:text-gray-900"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={this.handleSubmit}
+              disabled={isSubmitting}
+              className={`px-6 py-2 text-white font-bold rounded-lg transition-colors bg-green-500`}
+            >
+              Send Invites
+            </button>
           </div>
         </div>
-
-        <div className="flex justify-end gap-4 pt-4 border-t">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 font-medium text-gray-700 hover:text-gray-900"
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`px-6 py-2 text-white font-bold rounded-lg transition-colors bg-green-500`}
-          >
-            Send Invites
-          </button>
-        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }

@@ -7,7 +7,7 @@ const g_coDb = await globalThis.g_oConnection.db(process.env.m_sDbName)
 
 import { readdir } from "fs/promises"
 import { setupGridFSBucket,getGridFSBucket } from "./gridfs.ts"
-import g_coBcrypt from "bcrypt";
+import g_coBcrypt from "bcrypt"
 
 for (const l_csFileName of await readdir("backend/model")) {
 	const l_coMod = await import("../model/" + l_csFileName)
@@ -51,12 +51,12 @@ await g_coDb.collection("users").updateOne({ _id: ObjectId.createFromHexString("
 
 if ("m_sDev" in process.env) {
 	try {
-	  const tempBucket = getGridFSBucket();
-	  await tempBucket.drop();
-	  console.log('Cleared GridFS images');
+	  const tempBucket = getGridFSBucket()
+	  await tempBucket.drop()
+	  console.log('Cleared GridFS images')
 	} catch (error) {
 	  if (error.codeName !== 'NamespaceNotFound') {
-		console.error('GridFS cleanup error:', error);
+		console.error('GridFS cleanup error:', error)
 	  }
 	}
   }
