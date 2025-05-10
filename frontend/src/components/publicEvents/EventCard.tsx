@@ -1,5 +1,6 @@
-import {FC, useEffect, useState} from "react";
+import {FC} from "react";
 import {Link} from "react-router-dom";
+import {useFetch} from "../../utils/customHooks.ts";
 
 interface OrganizerDetails {
     username: string;
@@ -17,39 +18,8 @@ type EventCardProps = {
     joinedUsers?: string[]; // Array of joined user IDs
     owned?: boolean //If the current user is the owner of the event
 };
-const EventCard: FC<EventCardProps> = ({
-    _id,
-    eventName,
-    eventLocation,
-    images,
-    eventTime,
-    organiserID,
-    joinedUsers = [],
-    owned
-}) => {
-    const [owner, setOwner] = useState<OrganizerDetails | null>(null);
-    useEffect(() => {
-        // Fetch owner information if organiserID is provided
-        console.log(organiserID)
-        const fetchOwner = async () => {
-            if (!organiserID) return;
-            
-            try {
-                const response = await fetch(`/user/${organiserID}`);
-                if (response.ok) {
-                    const userData = await response.json();
-                    setOwner({
-                        username: userData.username,
-                        avatar: userData.avatar,
-                        avatarZoom: userData.avatarZoom || 1
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to fetch owner data:", error);
-            } 
-        };
-        fetchOwner();
-    }, [organiserID]);
+const EventCard: FC<EventCardProps> = ({ organiserID, ...props }) => {
+  const { data: owner } = useFetch<OrganizerDetails>(`/user/${organiserID}`);
 
     const formatDate = (date: Date) => { // Format the date to a more readable format
         return new Date(date).toLocaleString('en-US', {
@@ -64,27 +34,27 @@ const EventCard: FC<EventCardProps> = ({
     };
 
     return (
-        <Link to={`/event-detail/${_id}`} className="w-[328px] rounded-xl overflow-hidden bg-white shadow-sm cursor-pointer transition-transform duration-200 hover:shadow-md hover:scale-[1.02]">
+        <Link to={`/event-detail/${props._id}`} className="w-[328px] rounded-xl overflow-hidden bg-white shadow-sm cursor-pointer transition-transform duration-200 hover:shadow-md hover:scale-[1.02]">
            
            <div className="h-48 w-full relative">
             <img
-                src={`/event/image/${images}`}
-                alt={eventName}
+                src={`/event/image/${props.images}`}
+                alt={props.eventName}
                 className="w-full h-full object-cover rounded-t-xl"
             />
             </div>
             <div className="p-4 space-y-1">
                 <div className="flex flex-col items-start gap-2">
                     <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
-                        {eventName}
+                        {props.eventName}
                     </h3>
                 </div>
                 <p className="text-xs text-gray-600">
-                <span className="inline-block mr-1">📍</span> {eventLocation}</p>
+                <span className="inline-block mr-1">📍</span> {props.eventLocation}</p>
                 <p className="text-xs text-gray-500">
-                <span className="inline-block mr-1">🕒</span>{formatDate(eventTime)}</p>
+                <span className="inline-block mr-1">🕒</span>{formatDate(props.eventTime)}</p>
                 <p className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        {joinedUsers.length} attendees
+                        {props.joinedUsers?.length || 0} attendees
                 </p>
                  {/* Owner information */}
                 {owner && (
@@ -106,8 +76,8 @@ const EventCard: FC<EventCardProps> = ({
         )}
             </div>
             <div>           
-            {owned && (
-            <span className="block text-center text-green-600 font-semibold">
+            {props.owned && (
+            <span data-testid="owned-badge" className="block text-center text-green-600 font-semibold">
                 You own this item!
             </span>
                 )}

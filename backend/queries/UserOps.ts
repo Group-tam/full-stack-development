@@ -89,7 +89,7 @@ g_coRouter.get("/", async function(a_oRequest,  a_oResponse) {
 	} catch (error) {a_oResponse.status(g_codes("Server error")).json(error)}
 })
 
-// GET Route for current user (securer than other available alternatives)
+// GET Route for current user
 g_coRouter.get("/me", async function(a_oRequest, a_oResponse) {
 	try {
 		const userId = a_oRequest.session["User ID"]
@@ -154,7 +154,6 @@ g_coRouter.get("/search", async function(a_oRequest, a_oResponse) {
 	}
   })
 
-
   g_coRouter.get("/is-admin", async function(a_oRequest, a_oResponse) {
 	try {
 		const userId = a_oRequest.session["User ID"]
@@ -190,7 +189,6 @@ g_coRouter.get("/:id", async function(a_oRequest, a_oResponse) {
         a_oResponse.status(g_codes("Server error")).json({ error: "Failed to fetch user" })
     }
 })
-
 
 // PUT Route update
 g_coRouter.put("/", async function(a_oRequest, a_oResponse) {

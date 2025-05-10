@@ -18,7 +18,7 @@ const NotificationsDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedMessage, setSelectedMessage] = useState<{text: string, eventName: string} | null>(null);
-  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); // Remove unused loading
+  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); 
 
   useEffect(() => {
     if (latestNotifications) {

@@ -108,7 +108,7 @@ g_coRouter.get("/my-requests", async function(a_oRequest, a_oResponse) {
     // Get user's requests from users collection
     const user = await g_coUsers.findOne(
       { _id: new ObjectId(userId) },
-      { projection: { requests: 1 } }
+      { projection: { requests: 1 } } // Via a request field from the user collection
     )
 
     if (!user?.requests) return a_oResponse.status(g_codes("Success")).json([])
@@ -149,13 +149,13 @@ g_coRouter.get("/organizer-responses", async (a_oRequest, a_oResponse) => {
     try {
       const organizerId = a_oRequest.session["User ID"]
       if (!organizerId) return a_oResponse.status(g_codes("Unauthorised")).json({ error: "Not logged in" })
-  
+      // Get events organized by the user
       const events = await g_coEvents.find({ organiserID: new ObjectId(organizerId) }).toArray()
       const eventIds = events.map(e => e._id)
       const requests = await g_coRequests.find({
         eventId: { $in: eventIds }
       }).toArray()
-  
+      // Enrich requests with event and sender details
       const enrichedRequests = await Promise.all(
         requests.map(async (request) => {
           const user = await g_coUsers.findOne(
