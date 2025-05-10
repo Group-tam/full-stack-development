@@ -76,6 +76,7 @@ const EventCard: FC<EventCardProps> = ({ organiserID, ...props }) => {
         )}
             </div>
             <div>           
+
             {props.owned && (
             <span data-testid="owned-badge" className="block text-center text-green-600 font-semibold">
                 You own this item!
