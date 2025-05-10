@@ -158,6 +158,7 @@ export default function CreateEventCard() {
                     <input
                         type="datetime-local"
                         id="date"
+                        name="date"
                         required
                         value={formatDateForInput(eventTime)}
                         onChange={(e) => setEventTime(new Date(e.target.value))}

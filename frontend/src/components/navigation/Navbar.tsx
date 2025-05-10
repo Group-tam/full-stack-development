@@ -222,7 +222,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       {/* Right side buttons */}
       <div className="flex items-center space-x-4">
         {/* // Create button */}
-        <button className="bg-[#2ecc71] hover:bg-[#27ae60] text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors cursor-pointer" onClick={handleClick}>
+        <button name="createEventButton" className="bg-[#2ecc71] hover:bg-[#27ae60] text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors cursor-pointer" onClick={handleClick}>
           <PlusIcon className="h-5 w-5" />
           <span>Create</span>
         </button>
