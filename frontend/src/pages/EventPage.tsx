@@ -131,31 +131,7 @@ function EventDetail() {
     }
   };
 
-  const handleSetReminder = async (message: string, minutesBefore: number) => {
-    try {
-      const response = await fetchHandler(`/notification/reminder`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          eventId: currentEvent._id,
-          message,
-          minutesBefore
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to set reminder');
-      }      
-      const data = await response.json();
-      console.log("Reminder set:", data);
-      
-    } catch (error) {
-      console.error("Error setting reminder:", error);
-    }
-  };
-
-  const handleInform = async (message: string, option: string) => {
+  const handleInform = async (message: string, option: string, minutesBefore?: number) => {
     try {
       const response = await fetchHandler(`/notification/inform`, {
         method: "POST",
@@ -164,18 +140,16 @@ function EventDetail() {
         body: JSON.stringify({
           eventId: currentEvent._id,
           message,
-          option
+          option,
+          minutesBefore
         })
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to send notification');
-      }
-      
+      if (!response.ok) throw new Error('Failed to create notification');
       const data = await response.json();
-      console.log("Notifications sent:", data);
+      console.log("Notification handled:", data);
     } catch (error) {
-      console.error("Error sending notifications:", error);
+      console.error("Error handling notification:", error);
     }
   };
 
@@ -233,6 +207,7 @@ function EventDetail() {
                     organiserID={currentEvent.organiserID}
                     statusMessage={statusMessage}
                   />
+
                   <DiscussionBoard 
                     eventId={currentEvent._id}
                     isOwner={isOwner}
@@ -254,7 +229,6 @@ function EventDetail() {
                     onRequestToJoin={handleRequestToJoin}
                     onRequestUpdate={handleRequestUpdate}
                     eventTime={currentEvent.eventTime}
-                    onSetReminder={handleSetReminder}
                     onInform={handleInform}
                   />
                 </div>

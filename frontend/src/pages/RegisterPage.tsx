@@ -20,6 +20,7 @@ export default function RegisterPage() {
 	const [Name, setName] = useState('');
 	const [email, setEmail] = useState('');
 
+
 	// New password validation states
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');

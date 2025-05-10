@@ -8,6 +8,7 @@ import MessageViewModal from '../MessageViewModal';
 import {useFetch} from "../../utils/customHooks.ts";
 
 
+
 interface NavbarProps {
   toggleSidebar: () => void;
 }
@@ -17,7 +18,7 @@ const NotificationsDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedMessage, setSelectedMessage] = useState<{text: string, eventName: string} | null>(null);
-  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); // Remove unused loading
+  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); 
 
   useEffect(() => {
     if (latestNotifications) {
@@ -91,6 +92,21 @@ const NotificationsDropdown = () => {
     });
   };
 
+  // Click outside handling
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    // Only add listener when dropdown is open
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]); // Depend on isOpen state
+
   return (
     <div className="relative" ref={containerRef}>
       <button onClick={() => setIsOpen(!isOpen)} className="relative">
@@ -162,6 +178,7 @@ const NotificationsDropdown = () => {
     </div>
   );
 };
+
 
 // adding a trigger to navigate to the create event page
 

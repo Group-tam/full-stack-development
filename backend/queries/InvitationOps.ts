@@ -12,12 +12,6 @@ import { ObjectId } from "mongodb"
 const g_coEvents = g_coDb.collection("events")
 const g_coUsers = g_coDb.collection("users")
 
-g_coRouter.post("/", function(a_oRequest, a_oResponse) {
-	
-})
-g_coRouter.get("/", function(a_oRequest, a_oResponse) {
-	
-})
 
 g_coRouter.get("/received", async function(a_oRequest, a_oResponse) {
     try {
@@ -25,7 +19,7 @@ g_coRouter.get("/received", async function(a_oRequest, a_oResponse) {
 
         const l_aResponse = await g_coInvitations.find({
             receiverId: userId,
-        }).toArray();
+        }).toArray()
 
         a_oResponse.status(g_codes("Success")).json(l_aResponse)
     } catch (a_oError) {
@@ -72,12 +66,7 @@ g_coRouter.get("/user-invitations", async (a_oRequest, a_oResponse) => {
     }
 })
 
-g_coRouter.put("/", function(a_oRequest, a_oResponse) {
-	
-})
-g_coRouter.delete("/", function(a_oRequest, a_oResponse) {
-	
-})
+
 g_coRouter.patch("/:id", g_coExpress.json(), async (a_oRequest, a_oResponse) => {
   try {
     const { state } = a_oRequest.body
