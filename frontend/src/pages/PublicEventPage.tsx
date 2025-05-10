@@ -37,23 +37,28 @@ export default function PublicEventPage() {
             <Navbar toggleSidebar={toggleSidebar} />
             <div className={`mt-20 transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-8'}`}>
                 <h1 className={"font-bold text-3xl"}>Public Events</h1>
-                <div className={"flex flex-wrap gap-13 mt-8"}>
-                    {events.map(event => {
-                        return (
-                            <EventCard
-                                key={event._id}
-                                _id={event._id}
-                                eventName={event.eventName}
-                                images={event.images}
-                                eventLocation={event.eventLocation}
-                                eventTime={event.eventTime}
-                                organiserID={event.organiserID} 
-                                joinedUsers={event.joinedUsers || []} 
-                                owned = {ownedEvents.some(item => item._id === event._id)}
-                            />
-                        )
-                    })
-                    }
+                <div data-testid="event-card" className={"flex flex-wrap gap-13 mt-8"}>
+                    {events.length > 0 ? (
+                        <div data-testid="event-card" className={"flex flex-wrap gap-13 mt-8"}>
+                            {events.map(event => (
+                                <EventCard
+                                    key={event._id}
+                                    _id={event._id}
+                                    eventName={event.eventName}
+                                    images={event.images}
+                                    eventLocation={event.eventLocation}
+                                    eventTime={event.eventTime}
+                                    organiserID={event.organiserID}
+                                    joinedUsers={event.joinedUsers || []}
+                                    owned={ownedEvents.some(item => item._id === event._id)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <h2 className="text-xl font-semibold mt-8" data-testid="no-events-message">
+                            No events available
+                        </h2>
+                    )}
                 </div>
             </div>
         </div>
