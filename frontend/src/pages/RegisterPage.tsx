@@ -17,34 +17,34 @@ export default function RegisterPage() {
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
-	const [Name, setName] = useState('');
-	const [email, setEmail] = useState('');
-
-
-	// New password validation states
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-	const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
-	const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
-		isValid: false,
-		hasMinLength: false,
-		hasUppercase: false,
-		hasLowercase: false,
-		hasDigit: false,
-		hasSpecialChar: false,
-	});
-	const [isPasswordMatch, setIsPasswordMatch] = useState(false);
-	const [errorMessage, setErrorMessage] = useState('');
-	const DEFAULT_AVATAR_ID = '000000000000000000000000';
-	const DEFAULT_AVATAR_URL = `http://localhost:58888/user/image/${DEFAULT_AVATAR_ID}`;
-	const [formData, setFormData] = useState<FormData>({
-		username: '',
-		email: '',
-		password: '',
-		avatar: DEFAULT_AVATAR_ID
-	});
-	const [avatarZoom, setAvatarZoom] = useState(1); // Add zoom state
+    const [Name, setName] = useState('');
+    const [email, setEmail] = useState('');
+     
+    // New password validation states
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+    const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
+    const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
+        isValid: false,
+        hasMinLength: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasDigit: false,
+        hasSpecialChar: false,
+    });
+    const [isPasswordMatch, setIsPasswordMatch] = useState(false); 
+    const [errorMessage, setErrorMessage] = useState('');
+    const DEFAULT_AVATAR_ID = '000000000000000000000000'; 
+  //  const DEFAULT_AVATAR_URL = `http://localhost:58888/user/image/${DEFAULT_AVATAR_ID}`;
+  const DEFAULT_AVATAR_URL = '/avatar-default.svg';
+    const [formData, setFormData] = useState<FormData>({
+      username: '',
+      email: '',
+      password: '',
+      avatar: DEFAULT_AVATAR_ID
+    });
+    const [avatarZoom, setAvatarZoom] = useState(1); 
 
 	const navigate = useNavigate();
 

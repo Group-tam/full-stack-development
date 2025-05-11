@@ -79,7 +79,7 @@ class Comment extends BaseComment {
                   <span className="text-sm">Cannot reply (you are not accepted)</span>
                 </div>
               )}
-              {/* Move collapse button here */}
+              {/* collapse button*/}
               {replies.length > 0 && (
                 <button
                   onClick={this.toggleCollapse}

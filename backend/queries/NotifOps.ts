@@ -5,7 +5,7 @@ import g_coDb from "../server/db.ts"
 import { ObjectId } from "mongodb"
 import g_codes from "../server/statuses.ts"
 import g_coExpress from "express"
-
+// This route handler is used by the notification webworker in order to check and update the notifications
 g_coRouter.put("/process", async (a_oRequest, a_oResponse) => {
     try {
       const now = new Date()
@@ -23,8 +23,8 @@ g_coRouter.put("/process", async (a_oRequest, a_oResponse) => {
         // Get recipients based on saved option
         let recipientIds = []
         if (event.public) {
-          recipientIds = event.joinedUsers
-        } else {
+          recipientIds = event.joinedUsers //Only the joined users of the public event will received the notifications
+        } else { //In case of the private event the notification must be associated with one of the four options.
           // Use the original option from when notification was created
           switch(notification.option) {
             case 'accepted-private':
@@ -161,7 +161,7 @@ g_coRouter.post("/inform", g_coExpress.json(), async (a_oRequest, a_oResponse) =
         }).toArray()
         recipientIds = allInvites.map(inv => inv.receiverId)
         break
-      default:
+      default: // For public events, all joined users will receive the notification
         recipientIds = event.joinedUsers
     }
 
