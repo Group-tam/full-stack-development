@@ -21,6 +21,8 @@ const RSVPTable = () => {
   const { data: sentRequestsData } = useFetch<any[]>('/request/my-requests');
   const { data: sentInvitationsData } = useFetch<any[]>('/invitation/sent-invitations');
 
+
+  // Format the responses into ResponseItem objects
   useEffect(() => {
     if (requestsData && invitationsData && sentRequestsData && sentInvitationsData) {
       const formattedResponses = [
@@ -45,7 +47,7 @@ const RSVPTable = () => {
           eventTime: new Date(si.eventTime)
         }))
       ];
-      setResponses(formattedResponses);
+      setResponses(formattedResponses); //setting the responses state for later visual processing
     }
   }, [requestsData, invitationsData, sentRequestsData, sentInvitationsData]);
   // Accept/Reject/Decline handler
