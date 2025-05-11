@@ -8,6 +8,7 @@ import MessageViewModal from '../MessageViewModal';
 import {useFetch} from "../../utils/customHooks.ts";
 
 
+
 interface NavbarProps {
   toggleSidebar: () => void;
 }
@@ -17,7 +18,7 @@ const NotificationsDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedMessage, setSelectedMessage] = useState<{text: string, eventName: string} | null>(null);
-  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); // Remove unused loading
+  const { data: latestNotifications } = useFetch<Notification[]>('/notification/user'); 
 
   useEffect(() => {
     if (latestNotifications) {
@@ -91,6 +92,21 @@ const NotificationsDropdown = () => {
     });
   };
 
+  // Click outside handling
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    // Only add listener when dropdown is open
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]); // Depend on isOpen state
+
   return (
     <div className="relative" ref={containerRef}>
       <button onClick={() => setIsOpen(!isOpen)} className="relative">
@@ -163,6 +179,7 @@ const NotificationsDropdown = () => {
   );
 };
 
+
 // adding a trigger to navigate to the create event page
 
 
@@ -205,7 +222,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       {/* Right side buttons */}
       <div className="flex items-center space-x-4">
         {/* // Create button */}
-        <button className="bg-[#2ecc71] hover:bg-[#27ae60] text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors cursor-pointer" onClick={handleClick}>
+        <button name="createEventButton" className="bg-[#2ecc71] hover:bg-[#27ae60] text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors cursor-pointer" onClick={handleClick}>
           <PlusIcon className="h-5 w-5" />
           <span>Create</span>
         </button>

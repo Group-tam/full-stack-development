@@ -19,6 +19,7 @@ export default function CreateEventCard() {
     const settings = useAppSelector(state => state.globalSetting.settings);
     const userEvents = useAppSelector(state => state.ownedEvents.events);
     const eventLimit = settings?.eventLimit || 0;
+    console.log(userEvents)
 
     const [showToast, setShowToast] = useState(false);
 
@@ -157,6 +158,7 @@ export default function CreateEventCard() {
                     <input
                         type="datetime-local"
                         id="date"
+                        name="date"
                         required
                         value={formatDateForInput(eventTime)}
                         onChange={(e) => setEventTime(new Date(e.target.value))}
@@ -174,7 +176,7 @@ export default function CreateEventCard() {
                     </select>
                     <button
                         type="submit"
-                        disabled={buttonDisabled}
+                        disabled=  {false} //{buttonDisabled}
                         className={`w-42 text-white py-2 rounded-xl ${buttonDisabled ? 'bg-blue-200' : 'bg-blue-500 hover:bg-blue-600 transition duration-200 cursor-pointer'}`}>
                         {buttonDisabled ? 'Event Limit Reached' : 'Create Event'}
                     </button>

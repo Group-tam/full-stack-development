@@ -14,7 +14,7 @@ export class BaseModal<P extends BaseModalProps = BaseModalProps> extends Compon
     content: "text-gray-600 whitespace-pre-wrap mb-4 break-words",
     button: "w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
   };
-
+  //Handling the scrollbar visibility
   componentDidMount() {
     this.toggleBodyOverflow(this.props.show);
   }

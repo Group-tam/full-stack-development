@@ -4,7 +4,7 @@ function startProcessing() {
     // Check notifications every 9 seconds
     timerID = setInterval(() => {
         fetch('/notification/process', {
-            method: 'POST',
+            method: 'PUT',
             credentials: 'include'
         })
         .then(async response => {

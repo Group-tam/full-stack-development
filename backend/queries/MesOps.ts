@@ -11,7 +11,7 @@ g_coRouter.use(g_coExpress.json())
 // Get messages for event
 g_coRouter.get("/", async (a_oRequest, a_oResponse) => {
     try {
-        const { eventId: l_sEventId } = a_oRequest.query;
+        const { eventId: l_sEventId } = a_oRequest.query
         const l_oUserId = a_oRequest.session["User ID"]
         if (!l_sEventId || !ObjectId.isValid(l_sEventId)) {
             return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid Event ID" })
@@ -168,63 +168,63 @@ g_coRouter.put("/", g_coAuth, async (a_oRequest, a_oResponse) => {
 // Delete message
 g_coRouter.delete("/", g_coAuth, async (a_oRequest, a_oResponse) => {
     try {
-        const { messageId } = a_oRequest.body;
-        const l_oUserId = a_oRequest.session["User ID"];
+        const { messageId } = a_oRequest.body
+        const l_oUserId = a_oRequest.session["User ID"]
 
         if (!messageId || !ObjectId.isValid(messageId)) {
-            return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid Message ID" });
+            return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid Message ID" })
         }
 
-        const l_oMessageId = new ObjectId(messageId);
-        const l_coMessage = await g_coDb.collection("messages").findOne({ _id: l_oMessageId });
+        const l_oMessageId = new ObjectId(messageId)
+        const l_coMessage = await g_coDb.collection("messages").findOne({ _id: l_oMessageId })
 
-        if (!l_coMessage) return a_oResponse.status(g_codes("Not found")).json({ error: "Message not found" });
+        if (!l_coMessage) return a_oResponse.status(g_codes("Not found")).json({ error: "Message not found" })
 
         const l_coEvent = await g_coDb.collection("events").findOne({ 
             _id: l_coMessage.eventId 
-        });
+        })
 
         // Authorization check
-        const l_bIsSender = l_coMessage.senderId.equals(l_oUserId);
-        const l_bIsOrganizer = l_coEvent?.organiserID.equals(l_oUserId);
+        const l_bIsSender = l_coMessage.senderId.equals(l_oUserId)
+        const l_bIsOrganizer = l_coEvent?.organiserID.equals(l_oUserId)
 
         if (!l_bIsSender && !l_bIsOrganizer) {
-            return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" });
+            return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
         }
 
         // Find all descendant messages (replies and nested replies)
-        let l_aMessagesToDelete = [l_oMessageId];
-        let l_aCurrentParentIds = [l_oMessageId];
-        let l_bFoundMore = true;
+        let l_aMessagesToDelete = [l_oMessageId]
+        let l_aCurrentParentIds = [l_oMessageId]
+        let l_bFoundMore = true
 
         while (l_bFoundMore) {
             const l_aChildMessages = await g_coDb.collection("messages")
                 .find({ parentMessageId: { $in: l_aCurrentParentIds } })
-                .toArray();
+                .toArray()
 
             if (l_aChildMessages.length === 0) {
-                l_bFoundMore = false;
+                l_bFoundMore = false
             } else {
-                const l_aNewParentIds = l_aChildMessages.map(m => m._id);
-                l_aMessagesToDelete.push(...l_aNewParentIds);
-                l_aCurrentParentIds = l_aNewParentIds;
+                const l_aNewParentIds = l_aChildMessages.map(m => m._id)
+                l_aMessagesToDelete.push(...l_aNewParentIds)
+                l_aCurrentParentIds = l_aNewParentIds
             }
         }
 
         // Delete all messages in the list
         await g_coDb.collection("messages").deleteMany({
             _id: { $in: l_aMessagesToDelete }
-        });
+        })
 
         // Remove all deleted message IDs from the event's discussionBoard
         await g_coDb.collection("events").updateOne(
             { _id: l_coMessage.eventId },
             { $pull: { discussionBoard: { $in: l_aMessagesToDelete } } }
-        );
+        )
 
-        a_oResponse.sendStatus(g_codes("Success"));
+        a_oResponse.sendStatus(g_codes("Success"))
     } catch (a_oError) {
-        a_oResponse.status(g_codes("Server error")).json({ error: a_oError.message });
+        a_oResponse.status(g_codes("Server error")).json({ error: a_oError.message })
     }
 })
 

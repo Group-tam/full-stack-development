@@ -15,6 +15,7 @@ import { Readable } from "stream"
 import { uploadImage } from "../server/imageUpload.ts"
 
 const g_coUsers = g_coDb.collection("users")
+const g_co = multer()
 g_coRouter.post("/", g_coExpress.json(), async function (a_oRequest, a_oResponse) {
 	const { eventName, eventLocation, eventDescription, eventTime, isPublic, images } = a_oRequest.body
 	try {
@@ -47,7 +48,6 @@ g_coRouter.post("/", g_coExpress.json(), async function (a_oRequest, a_oResponse
 	}
 })
 
-const g_co = multer()
 g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oResponse) {
 	try {
 		const file = a_oRequest.file
@@ -55,9 +55,7 @@ g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oRe
 		const stream = Readable.from(file.buffer)
 		const { id } = await uploadImage(stream, file.originalname, file.mimetype)
 		a_oResponse.status(g_codes("Success")).json({ imageId: id })
-	} catch (err) {
-		a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" })
-	}
+	} catch (err) {a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" })}
 })
 
 g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
@@ -77,7 +75,7 @@ g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_
 		return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
 	  }
   
-	  // Check for any duplicates first
+	  // Check for any duplicates
 	  const duplicateUserIds: string[] = []
 	  for (const userId of userIds) {
 		const existing = await g_coInvitations.findOne({
@@ -179,8 +177,6 @@ g_coRouter.get("/owned", async function(a_oRequest, a_oResponse) {
 		a_oResponse.status(g_codes("Server error"))
 	}
 })
-
-
 g_coRouter.get("/joined", async function(a_oRequest, a_oResponse) {
 	try {
 		const userId = a_oRequest.session["User ID"]
@@ -211,10 +207,6 @@ g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
         a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid ID or error fetching image", details: a_oError })
     }
 })
-
-// g_coRouter.put("/", function(a_oRequest, a_oResponse) {
-	
-// })
 
 g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
     try {
@@ -258,41 +250,41 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
         )
 		//For the inform functionality
 
-		 const updatedEvent = result;
+		 const updatedEvent = result
         
 		 // Create notification
-		 const notificationText = `Event details for this event have been updated`;
+		 const notificationText = `Event details for this event have been updated`
 		 const notification = await g_coDb.collection("notifications").insertOne({
 			 text: notificationText,
 			 reminder: false,
 			 sendTime: new Date(),
 			 eventId: eventObjectId,
 			 sent: true
-		 });
+		 })
 
 		 // Get recipients
-		 let userIds = [];
+		 let userIds = []
 		 if (updatedEvent.public) {
-			 userIds = updatedEvent.joinedUsers;
+			 userIds = updatedEvent.joinedUsers
 		 } else {
 			 const invitations = await g_coInvitations.find({
 				 eventId: eventObjectId,
 				 state: "Accepted"
-			 }).toArray();
-			 userIds = invitations.map(i => i.receiverId);
+			 }).toArray()
+			 userIds = invitations.map(i => i.receiverId)
 		 }
  
 		 // Update user notifications
 		 await g_coUsers.updateMany(
 			 { _id: { $in: userIds } },
 			 { $push: { notifications: notification.insertedId } }
-		 );
+		 )
  
 		 // Update event notifications
 		 await g_coEvents.updateOne(
 			 { _id: eventObjectId },
 			 { $push: { notifications: notification.insertedId } }
-		 );
+		 )
  
 
 
@@ -336,10 +328,6 @@ g_coRouter.put("/:id/discussion", g_coExpress.json(), async function(a_oRequest,
   }
 })
 
-g_coRouter.delete("/", function(a_oRequest, a_oResponse) {
-	
-})
-
 g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_oResponse) {
 	try {
 
@@ -358,10 +346,7 @@ g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_
 		g_coEvents.countDocuments({ images: l_oId })
 	  ])
 	  
-	  if (file.length === 0) {
-		return a_oResponse.status(g_codes("Not found")).json({ error: "Image not found" })
-	  }
-
+	  if (file.length === 0) return a_oResponse.status(g_codes("Not found")).json({ error: "Image not found" })
 	  if (eventsUsingImage > 0) {
 		return a_oResponse.status(g_codes("Conflict")).json({ 
 		  error: "Image still in use by other events" 

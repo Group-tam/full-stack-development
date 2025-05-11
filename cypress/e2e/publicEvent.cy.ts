@@ -1,16 +1,14 @@
 describe('Public Events Page', () => {
-    beforeEach(() => {
+    before(() => {
         cy.visit('http://localhost:58888/login');
         cy.get('input[name="username"]').type('admin'); // Replace with an actual username
         cy.get('input[name="password"]').type('AdminPassword1234$'); // Replace with an actual password
         cy.get('button[type="submit"]').click();
     });
 
-    it('should display the "Public Events" heading', () => {
+    it('should display the public events correctly', () => {
         cy.contains('h1', 'Public Events').should('be.visible');
-    });
 
-    it('should show either event cards or fallback message', () => {
         cy.get('body').then($body => {
             if ($body.find('[data-testid="event-card"] > *').length > 0) {
                 // ✅ Events exist
@@ -24,9 +22,7 @@ describe('Public Events Page', () => {
                     .and('be.visible');
             }
         });
-    });
 
-    it('each event card should have visible content', () => {
         cy.get('[data-testid="event-card"]').each(($el) => {
             cy.wrap($el).should('be.visible');
         });

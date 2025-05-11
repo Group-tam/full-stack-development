@@ -1,8 +1,8 @@
-import g_coExpress from "express";
+import g_coExpress from "express"
 
 const g_coRouter = g_coExpress.Router()
 
-import g_coDb from "../server/db.ts";
+import g_coDb from "../server/db.ts"
 import g_codes from "../server/statuses.ts"
 
 const g_coUsers = g_coDb.collection("users")
@@ -26,7 +26,7 @@ g_coRouter.get("/", g_bAdmin, async function (a_oRequest, a_oResponse) {
 		console.log(error)
 		a_oResponse.status(g_codes("Error"))
 	}
-});
+})
 
 g_coRouter.put("/", g_bAdmin, g_coExpress.json(), async function (a_oRequest, a_oResponse) {
 	console.log(JSON.stringify(a_oRequest.body))
@@ -41,11 +41,11 @@ g_coRouter.put("/", g_bAdmin, g_coExpress.json(), async function (a_oRequest, a_
 		a_oResponse.status(g_codes("Success")).json({
 			message: "Global settings updated.",
 			updatedSettings: res
-		});
+		})
 	} catch (error) {
-		console.log('Error details:', error);
-		a_oResponse.status(g_codes("Error")).json({message: "Failed to update global settings"});
+		console.log('Error details:', error)
+		a_oResponse.status(g_codes("Error")).json({message: "Failed to update global settings"})
 	}
-});
+})
 
 export default g_coRouter

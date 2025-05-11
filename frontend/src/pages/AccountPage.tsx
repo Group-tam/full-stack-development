@@ -213,10 +213,9 @@ export default function AccountPage() {
   }, [user]);
 
   // Save changes
-  const handleSave = async () => {
-    // Username update
+  const handleSave = async () => {    // Username update
     if (username && username !== user?.username && !usernameError) {
-      const res = await fetch("/user/update-username", {
+      const res = await fetch("/user/update/username", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -229,16 +228,16 @@ export default function AccountPage() {
     }
     // Password update
     if (canEditPassword && newPassword && newPassword === confirmPassword) {
-      await fetch("/user/update-password", {
+      await fetch("/user/update/password", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ newPassword }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
     }
     // Avatar update
     if (shouldUpdateAvatar && (avatar && (avatar !== user?.avatar || avatarZoom !== user?.avatarZoom))) {
-      await fetch("/user/update-avatar", {
+      await fetch("/user/update/avatar", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
