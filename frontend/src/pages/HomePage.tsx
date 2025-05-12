@@ -15,7 +15,7 @@ function HomePage() {
                     </div>
 
                     <div className="text-gray-900">
-                        not simply a platform for event planning</div>
+                        Not simply a platform for event planning</div>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-800 bg-[#f7dc6f] p-6 rounded-lg">
                     We are not simply a platform for event planning. We are a community of event organizers,
@@ -41,7 +41,6 @@ function HomePage() {
                 </Link>
             </div>
         </div>
-
     // Adding sidebar
     );
 }

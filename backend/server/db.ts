@@ -50,15 +50,15 @@ await g_coDb.collection("users").updateOne({ _id: ObjectId.createFromHexString("
 
 if ("m_sDev" in process.env) {
 	try {
-	  const tempBucket = getGridFSBucket()
-	  await tempBucket.drop()
-	  console.log('Cleared GridFS images')
+		const tempBucket = getGridFSBucket()
+		await tempBucket.drop()
+		console.log('Cleared GridFS images')
 	} catch (error) {
-	  if (error.codeName !== 'NamespaceNotFound') {
+		if (error.codeName !== 'NamespaceNotFound') {
 		console.error('GridFS cleanup error:', error)
-	  }
+		}
 	}
-  }
+}
 
 console.log("Registered collections.")
 

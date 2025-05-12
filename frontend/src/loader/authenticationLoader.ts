@@ -8,7 +8,6 @@ export async function authenticationLoader() {
 
 	if (!isAuthenticated) {
 		const result = await store.dispatch(fetchCurrentUser());
-
 		if (fetchCurrentUser.fulfilled.match(result)) {
 			return null
 		} else {

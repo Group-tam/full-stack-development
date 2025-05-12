@@ -199,30 +199,30 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
         )
 		//For the inform functionality
 
-		 const updatedEvent = result
-        
-		 // Create notification
-		 const notificationText = `Event details for this event have been updated`
-		 const notification = await g_coDb.collection("notifications").insertOne({
-			 text: notificationText,
-			 reminder: false,
-			 sendTime: new Date(),
-			 eventId: eventObjectId,
-			 sent: true
-		 })
+		const updatedEvent = result
+	
+		// Create notification
+		const notificationText = `Event details for this event have been updated`
+		const notification = await g_coDb.collection("notifications").insertOne({
+			text: notificationText,
+			reminder: false,
+			sendTime: new Date(),
+			eventId: eventObjectId,
+			sent: true
+		})
 
-		 // Get recipients
-		 let userIds = []
-		 if (updatedEvent.public) userIds = updatedEvent.joinedUsers
-		 else {
-			 const invitations = await g_coInvitations.find({eventId: eventObjectId, state: "Accepted"}).toArray()
-			 userIds = invitations.map(i => i.receiverId)
-		 }
- 
-		 // Update user notifications
-		 await g_coUsers.updateMany({ _id: { $in: userIds } },{ $push: { notifications: notification.insertedId } })
-		 // Update event notifications
-		 await g_coEvents.updateOne({ _id: eventObjectId },{ $push: { notifications: notification.insertedId } })
+		// Get recipients
+		let userIds = []
+		if (updatedEvent.public) userIds = updatedEvent.joinedUsers
+		else {
+			const invitations = await g_coInvitations.find({eventId: eventObjectId, state: "Accepted"}).toArray()
+			userIds = invitations.map(i => i.receiverId)
+		}
+
+		// Update user notifications
+		await g_coUsers.updateMany({ _id: { $in: userIds } },{ $push: { notifications: notification.insertedId } })
+		// Update event notifications
+		await g_coEvents.updateOne({ _id: eventObjectId },{ $push: { notifications: notification.insertedId } })
         a_oResponse.status(g_codes("Success")).json(result)
     } catch (error) {
         console.error("Update error:", error)
@@ -231,61 +231,61 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
 })
 
 g_coRouter.put("/:id/discussion", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
-  try {
-    const eventId = a_oRequest.params.id
-    const userId = a_oRequest.session["User ID"]
-    const { description } = a_oRequest.body
-    
-    // Validate event ownership
-    const event = await g_coEvents.findOne({
-      _id: new ObjectId(eventId),
-      organiserID: new ObjectId(userId)
-    })
+	try {
+		const eventId = a_oRequest.params.id
+		const userId = a_oRequest.session["User ID"]
+		const { description } = a_oRequest.body
+		
+		// Validate event ownership
+		const event = await g_coEvents.findOne({
+		_id: new ObjectId(eventId),
+		organiserID: new ObjectId(userId)
+		})
 
-    if (!event) return a_oResponse.status(g_codes("Unauthorised")).json({error: "Not authorized to update this event" })
+		if (!event) return a_oResponse.status(g_codes("Unauthorised")).json({error: "Not authorized to update this event" })
 
-    // Update discussion description
-    await g_coEvents.updateOne(
-      { _id: new ObjectId(eventId) },
-      { $set: { discussionDescription: description } }
-    )
+		// Update discussion description
+		await g_coEvents.updateOne(
+		{ _id: new ObjectId(eventId) },
+		{ $set: { discussionDescription: description } }
+		)
 
-    a_oResponse.sendStatus(g_codes("Success"))
-  } catch (error) {
-    console.error("Update discussion description error:", error)
-    a_oResponse.status(g_codes("Server error")).json({ 
-      error: "Failed to update discussion description" 
-    })
-  }
+		a_oResponse.sendStatus(g_codes("Success"))
+	} catch (error) {
+		console.error("Update discussion description error:", error)
+		a_oResponse.status(g_codes("Server error")).json({ 
+		error: "Failed to update discussion description" 
+		})
+  	}
 })
 
 g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_oResponse) {
 	try {
-	  if (!ObjectId.isValid(a_oRequest.params.id)) return a_oResponse.status(g_codes("Invalid")).json({  error: "Invalid image ID format"})
-  
-	  const l_oId = new ObjectId(a_oRequest.params.id)
-	  const bucket = getGridFSBucket()
-  
-	  // Verify image exists
-	  const [file, eventsUsingImage] = await Promise.all([
-		bucket.find({ _id: l_oId }).toArray(),
-		g_coEvents.countDocuments({ images: l_oId })
-	  ])
-	  
-	  if (file.length === 0) return a_oResponse.status(g_codes("Not found")).json({ error: "Image not found" })
-	  if (eventsUsingImage > 0) {
-		return a_oResponse.status(g_codes("Conflict")).json({ 
-		  error: "Image still in use by other events" 
-		})
-	  }
-	  console.log("Deleting image with ID:", l_oId)
-	  await bucket.delete(l_oId)
-	  a_oResponse.sendStatus(g_codes("Success"))
+		if (!ObjectId.isValid(a_oRequest.params.id)) return a_oResponse.status(g_codes("Invalid")).json({  error: "Invalid image ID format"})
+
+		const l_oId = new ObjectId(a_oRequest.params.id)
+		const bucket = getGridFSBucket()
+
+		// Verify image exists
+		const [file, eventsUsingImage] = await Promise.all([
+			bucket.find({ _id: l_oId }).toArray(),
+			g_coEvents.countDocuments({ images: l_oId })
+		])
+		
+		if (file.length === 0) return a_oResponse.status(g_codes("Not found")).json({ error: "Image not found" })
+		if (eventsUsingImage > 0) {
+			return a_oResponse.status(g_codes("Conflict")).json({ 
+			error: "Image still in use by other events" 
+			})
+		}
+		console.log("Deleting image with ID:", l_oId)
+		await bucket.delete(l_oId)
+		a_oResponse.sendStatus(g_codes("Success"))
 	} catch (a_oError) {
-	  console.error("Image deletion error:", a_oError)
-	  a_oResponse.status(g_codes("Server error")).json({ 
-		error: "Failed to delete image" 
-	  })
+		console.error("Image deletion error:", a_oError)
+		a_oResponse.status(g_codes("Server error")).json({ 
+			error: "Failed to delete image" 
+		})
 	}
   })
 export default g_coRouter

@@ -82,10 +82,10 @@ export type Message = {
     createdAt: Date;
     updatedAt?: Date;
     user?: {
-      _id: string;
-      username: string;
-      avatar: string;
-      avatarZoom: number;
+        _id: string;
+        username: string;
+        avatar: string;
+        avatarZoom: number;
     };
     isOrganizer?: boolean;
   }

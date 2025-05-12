@@ -128,24 +128,24 @@ g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oRe
 // Provide flexibility for the InviteMemberModal and AccountPage
 g_coRouter.get("/search", async function(a_oRequest, a_oResponse) {
 	try {
-	  const query = a_oRequest.query.query as string
-	  
-	  if (!query || query.length < 1) {
+		const query = a_oRequest.query.query as string
+		
+		if (!query || query.length < 1) {
 		return a_oResponse.status(g_codes("Invalid")).json({ error: "Minimum 1 character required" })
-	  }
-  
-	  const users = await g_coUsers.find({
+		}
+
+		const users = await g_coUsers.find({
 		username: { $regex: `^${query}`, $options: 'i' }
-	  }).project({
+		}).project({
 		_id: 1,
 		username: 1,
 		emailAddress: 1
-	  }).limit(10).toArray()
-  
-	  a_oResponse.status(g_codes("Success")).json(users)
+		}).limit(10).toArray()
+
+		a_oResponse.status(g_codes("Success")).json(users)
 	} catch (error) {
-	  console.error("Search error:", error)
-	  a_oResponse.status(g_codes("Server error")).json({ error: "Search failed" })
+		console.error("Search error:", error)
+		a_oResponse.status(g_codes("Server error")).json({ error: "Search failed" })
 	}
   })
 
@@ -206,76 +206,76 @@ g_coRouter.put("/", async function(a_oRequest, a_oResponse) {
 //A Unified put methods for username, password, and avatar updates
 // using switch case to handle different actions
 g_coRouter.put("/update/:action", g_coExpress.json(), async (a_oRequest, a_oResponse) => {
-  const userId = a_oRequest.session["User ID"]
-  const action = a_oRequest.params.action
+	const userId = a_oRequest.session["User ID"]
+	const action = a_oRequest.params.action
 
-  switch (action) {
-    case 'username':
-      const { username } = a_oRequest.body
-      if (!userId || !username) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing user or username" })
-    
-      try {
-        // Check if username is taken (except for current user)
-        const existing = await g_coUsers.findOne({ username, _id: { $ne: new ObjectId(userId) } })
-        if (existing) return a_oResponse.status(g_codes("Conflict")).json({ error: "Username already exists" })
-    
-        // Get old username
-        const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
-        if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
-        const oldUsername = user.username
-    
-        // Update username in users
-        await g_coUsers.updateOne({ _id: new ObjectId(userId) }, { $set: { username } })
-    
-        // Update "Sender username" in requests
-        await g_coDb.collection("requests").updateMany({ "Sender username": oldUsername },{ $set: { "Sender username": username } } )
-        a_oResponse.sendStatus(g_codes("Success"))
-      } catch (err) {a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update username" })}
-      break
+	switch (action) {
+	case 'username':
+		const { username } = a_oRequest.body
+		if (!userId || !username) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing user or username" })
 
-    case 'password':
-      const { currentPassword, newPassword } = a_oRequest.body
-      if (!userId || !currentPassword || !newPassword) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing fields" })
-    
-      try {
-        const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
-        if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
-    
-        const isMatch = await g_coBcrypt.compare(currentPassword, user.password)
-        if (!isMatch) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Current password incorrect" })
-    
-        await g_coUsers.updateOne(
-          { _id: new ObjectId(userId) },
-          { $set: { password: await g_coBcrypt.hash(newPassword, parseInt(process.env.m_saltRounds || "10")) } }
-        )
-        a_oResponse.sendStatus(g_codes("Success"))
-      } catch (err) { a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update password" })}
-      break
+		try {
+		// Check if username is taken (except for current user)
+		const existing = await g_coUsers.findOne({ username, _id: { $ne: new ObjectId(userId) } })
+		if (existing) return a_oResponse.status(g_codes("Conflict")).json({ error: "Username already exists" })
 
-    case 'avatar':
-      const { avatar, avatarZoom } = a_oRequest.body
-      if (!userId || !avatar) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing avatar" })
-    
-      try {
-        await g_coUsers.updateOne(
-          { _id: new ObjectId(userId) },
-          { 
-            $set: { 
-              avatar: new ObjectId(avatar),
-              avatarZoom: parseFloat(avatarZoom) || 1.0
-            } 
-          }
-        )
-        a_oResponse.sendStatus(g_codes("Success"))
-      } catch (err) {
-        console.error('Avatar update error:', err)
-        a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update avatar" })
-      }
-      break
+		// Get old username
+		const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
+		if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
+		const oldUsername = user.username
 
-    default:
-      a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid action" })
-  }
+		// Update username in users
+		await g_coUsers.updateOne({ _id: new ObjectId(userId) }, { $set: { username } })
+
+		// Update "Sender username" in requests
+		await g_coDb.collection("requests").updateMany({ "Sender username": oldUsername },{ $set: { "Sender username": username } } )
+		a_oResponse.sendStatus(g_codes("Success"))
+		} catch (err) {a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update username" })}
+		break
+
+	case 'password':
+		const { currentPassword, newPassword } = a_oRequest.body
+		if (!userId || !currentPassword || !newPassword) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing fields" })
+
+		try {
+			const user = await g_coUsers.findOne({ _id: new ObjectId(userId) })
+			if (!user) return a_oResponse.status(g_codes("Not found")).json({ error: "User not found" })
+
+			const isMatch = await g_coBcrypt.compare(currentPassword, user.password)
+			if (!isMatch) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Current password incorrect" })
+
+			await g_coUsers.updateOne(
+				{ _id: new ObjectId(userId) },
+				{ $set: { password: await g_coBcrypt.hash(newPassword, parseInt(process.env.m_saltRounds || "10")) } }
+			)
+			a_oResponse.sendStatus(g_codes("Success"))
+			} catch (err) { a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update password" })}
+			break
+
+		case 'avatar':
+			const { avatar, avatarZoom } = a_oRequest.body
+			if (!userId || !avatar) return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing avatar" })
+
+			try {
+			await g_coUsers.updateOne(
+				{ _id: new ObjectId(userId) },
+				{ 
+				$set: { 
+					avatar: new ObjectId(avatar),
+					avatarZoom: parseFloat(avatarZoom) || 1.0
+				} 
+				}
+			)
+			a_oResponse.sendStatus(g_codes("Success"))
+		} catch (err) {
+			console.error('Avatar update error:', err)
+			a_oResponse.status(g_codes("Server error")).json({ error: "Failed to update avatar" })
+		}
+		break
+
+	default:
+		a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid action" })
+	}
 })
 
 export default g_coRouter

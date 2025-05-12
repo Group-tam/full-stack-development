@@ -6,13 +6,13 @@ import {fetchUsers} from "../redux/user/usersSlice.ts";
 import UserManagementCard from "../components/card/UserManagementCard.tsx";
 
 export default function AllUsersDashboardPage() {
-
     const dispatch = useDispatch<AppDispatch>();
     const users = useAppSelector(state => state.users.users);
 
     useEffect(() => {
         dispatch(fetchUsers())
     }, [dispatch]);
+    
     return (
         <>
             <h1 className="font-bold text-3xl">All Users</h1>

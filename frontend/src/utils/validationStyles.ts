@@ -1,8 +1,7 @@
 export type ValidationState = 'valid' | 'invalid' | 'neutral';
 
 export const getInputStyles = (state: ValidationState) => {
-    const baseStyles = 'w-full p-2 border rounded-md focus:ring-2 pr-10';
-    
+    const baseStyles = 'w-full p-2 border rounded-md focus:ring-2 pr-10';  
     switch(state) {
         case 'valid':
             return `${baseStyles} border-green-500 bg-green-50 focus:ring-green-500 focus:border-green-500`;
