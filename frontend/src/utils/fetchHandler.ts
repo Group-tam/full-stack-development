@@ -1,4 +1,3 @@
-
 export async function fetchHandler(...args: [RequestInfo, RequestInit?]) { 
 	console.log("SuperDebug")
 	const response = await fetch(args[0], args[1])

@@ -69,9 +69,9 @@ export default function LoginCard() {
                     />
                      <button type="button" className="absolute top-1/2 right-3 -translate-y-1/2 transform " onClick={() => {setShow(prev => !prev)}}>
                         {show ? (
-                          <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                            <EyeSlashIcon className="h-5 w-5 text-gray-500" />
                         ) : (
-                          <EyeIcon className="h-5 w-5 text-gray-500" />
+                            <EyeIcon className="h-5 w-5 text-gray-500" />
                         )}
                     </button>
                 </div>
@@ -89,15 +89,14 @@ export default function LoginCard() {
                 </div>
             </form>
             {/*Redirect to register page button*/}
-               <div className="flex items-center mt-6">
-  <span className="w-full flex justify-center items-center border border-gray-300 rounded-xl py-2">
-  <span className="text-gray-700 text-sm whitespace-nowrap">New to <span className="font-bold">SEROMEET</span> community?</span>
-    <Link to="/register">
-      <span className="font-bold underline ml-1 text-blue-900">Sign Up</span>
-    </Link>
-  </span>
-</div>
+            <div className="flex items-center mt-6">
+                <span className="w-full flex justify-center items-center border border-gray-300 rounded-xl py-2">
+                <span className="text-gray-700 text-sm whitespace-nowrap">New to <span className="font-bold">SEROMEET</span> community?</span>
+                    <Link to="/register">
+                        <span className="font-bold underline ml-1 text-blue-900">Sign Up</span>
+                    </Link>
+                </span>
+            </div>
         </div>
     )
-
 }

@@ -15,36 +15,17 @@ export default function EventManagementPage() {
     const joinedError = useAppSelector(state => state.joinedEvents.error);
 
     useEffect(() => {
-            dispatch(fetchOwnedEvents());
-            dispatch(fetchJoinedEvents());
-        }, [dispatch]);
+        dispatch(fetchOwnedEvents());
+        dispatch(fetchJoinedEvents());
+    }, [dispatch]);
 
-        if (ownedError || joinedError) {
-                 return <div>Error: {ownedError || joinedError}</div>;}
+    if (ownedError || joinedError) { return <div>Error: {ownedError || joinedError}</div>; }
+
     return (
         <>
-        <h1 className="font-bold text-3xl my-4">Owned Events</h1>
-        <div className="w-[1000px]">
-        {ownedEvents.map(event => {
-            return (
-                <EventManagementCard
-                    key={event._id}
-                    _id={event._id}
-                    eventName={event.eventName}
-                    eventDescription={event.eventDescription}
-                    images={event.images}
-                    isPublic={event.public}
-                    eventLocation={event.eventLocation}
-                    eventTime={event.eventTime}
-                    joinedUsers={event.joinedUsers}
-                />
-            )
-        })
-        }
-        </div>
-        <div className="w-[1000px]">
-            <h1 className="font-bold text-3xl my-4">Joined Events</h1>
-            {joinedEvents.map(event => {
+            <h1 className="font-bold text-3xl my-4">Owned Events</h1>
+            <div className="w-[1000px]">
+            {ownedEvents.map(event => {
                 return (
                     <EventManagementCard
                         key={event._id}
@@ -56,12 +37,31 @@ export default function EventManagementPage() {
                         eventLocation={event.eventLocation}
                         eventTime={event.eventTime}
                         joinedUsers={event.joinedUsers}
-
                     />
                 )
             })
             }
-        </div>    
+            </div>
+            <div className="w-[1000px]">
+                <h1 className="font-bold text-3xl my-4">Joined Events</h1>
+                {joinedEvents.map(event => {
+                    return (
+                        <EventManagementCard
+                            key={event._id}
+                            _id={event._id}
+                            eventName={event.eventName}
+                            eventDescription={event.eventDescription}
+                            images={event.images}
+                            isPublic={event.public}
+                            eventLocation={event.eventLocation}
+                            eventTime={event.eventTime}
+                            joinedUsers={event.joinedUsers}
+
+                        />
+                    )
+                })
+                }
+            </div>    
         </>
     )
 }

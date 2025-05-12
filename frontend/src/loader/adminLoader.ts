@@ -8,7 +8,6 @@ export async function adminLoader() {
 
     if (isAdmin === null) {
         const result = await store.dispatch(fetchIsAdmin());
-
         if (fetchIsAdmin.fulfilled.match(result)) {
             isAdmin = result.payload;
         }

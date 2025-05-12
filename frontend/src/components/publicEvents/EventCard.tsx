@@ -61,30 +61,26 @@ const EventCard: FC<EventCardProps> = ({ organiserID, ...props }) => {
             <div className="flex items-center">
                 <div className="h-6 w-6 rounded-full bg-gray-200 overflow-hidden">
                     <img 
-                        src={(owner.avatar != "000000000000000000000000")? `/user/image/${owner.avatar}` : '/avatar-default.svg'}
+                        src={(owner.avatar !== "000000000000000000000000")? `/user/image/${owner.avatar}` : '/avatar-default.svg'}
                         alt={owner.username}
                         className="h-full w-full object-cover"
                         style={{
                             transform: `scale(${owner.avatarZoom})`,
-                          }}
+                        }}
                     />
                 </div>
                 <span className="ml-2 text-xs text-gray-500">
                     Organized by <span className="font-medium">{owner.username}</span>
                 </span>
-            </div>
-        )}
-            </div>
-            <div>           
-
+            </div>)}
+        </div>
+        <div>           
             {props.owned && (
             <span data-testid="owned-badge" className="block text-center text-green-600 font-semibold">
                 You own this item!
-            </span>
-                )}
-            </div>
-        </Link>
-    )
+            </span>)}
+        </div>
+    </Link>)
 };
 
 export default EventCard;
