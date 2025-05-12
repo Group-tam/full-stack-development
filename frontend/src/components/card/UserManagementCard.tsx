@@ -21,7 +21,7 @@ const UserManagementCard: FC<UserManagementCardProps> = ({
         <div className="flex justify-around w-full gap-6">
             {/* Image Section */}
             <div className="w-20 h-20 overflow-hidden rounded-full bg-gray-100">
-                <img src={avatar ? `/user/image/${avatar}` : '/avatar-default.svg'} alt={username} className="w-full h-full object-cover" />
+                <img src={(avatar != "000000000000000000000000") ? `/user/image/${avatar}` : '/avatar-default.svg'} alt={username} className="w-full h-full object-cover" />
             </div>
 
             {/* Username */}

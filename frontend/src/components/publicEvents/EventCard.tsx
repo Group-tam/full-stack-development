@@ -61,7 +61,7 @@ const EventCard: FC<EventCardProps> = ({ organiserID, ...props }) => {
             <div className="flex items-center">
                 <div className="h-6 w-6 rounded-full bg-gray-200 overflow-hidden">
                     <img 
-                        src={`user/image/${owner.avatar}`}
+                        src={(owner.avatar != "000000000000000000000000")? `/user/image/${owner.avatar}` : '/avatar-default.svg'}
                         alt={owner.username}
                         className="h-full w-full object-cover"
                         style={{

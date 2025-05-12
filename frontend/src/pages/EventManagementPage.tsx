@@ -3,14 +3,10 @@ import {useDispatch} from "react-redux";
 import {AppDispatch} from "../redux/store.ts";
 import {useEffect} from "react";
 import {fetchOwnedEvents} from "../redux/event/ownedEventsSlice.ts";
-import {toggle} from "../redux/components/sidebarSlice.ts";
-import Sidebar from "../components/navigation/Sidebar.tsx";
-import Navbar from "../components/navigation/Navbar.tsx";
 import EventManagementCard from "../components/card/EventManagenentCard.tsx";
 import {fetchJoinedEvents} from "../redux/event/joinedEventSlice.ts";
 
 export default function EventManagementPage() {
-    const isSidebarOpen = useAppSelector(state => state.sidebar.isOpen)
     const dispatch = useDispatch<AppDispatch>();
 
     const ownedEvents = useAppSelector(state => state.ownedEvents.events);
@@ -25,54 +21,47 @@ export default function EventManagementPage() {
 
         if (ownedError || joinedError) {
                  return <div>Error: {ownedError || joinedError}</div>;}
-
-    const toggleSidebar = () => dispatch(toggle())
-
     return (
-        <div className="flex">
-            <Sidebar isOpen={isSidebarOpen} />
-            <div>
-                <Navbar toggleSidebar={toggleSidebar} />
-                <div className={`mt-20 ml-10 flex flex-col gap-y-4 transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-8'}`}>
-                    <h1 className="font-bold text-3xl">Owned Events</h1>
-                    {ownedEvents.map(event => {
-                        return (
-                            <EventManagementCard
-                                key={event._id}
-                                _id={event._id}
-                                eventName={event.eventName}
-                                eventDescription={event.eventDescription}
-                                images={event.images}
-                                isPublic={event.public}
-                                eventLocation={event.eventLocation}
-                                eventTime={event.eventTime}
-                                joinedUsers={event.joinedUsers}
-                            />
-                        )
-                    })
-                    }
-                </div>
-                <div className={`flex flex-col gap-y-4 transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-8'}`}>
-                        <h1 className="font-bold text-3xl">Joined Events</h1>
-                        {joinedEvents.map(event => {
-                            return (
-                                <EventManagementCard
-                                    key={event._id}
-                                    _id={event._id}
-                                    eventName={event.eventName}
-                                    eventDescription={event.eventDescription}
-                                    images={event.images}
-                                    isPublic={event.public}
-                                    eventLocation={event.eventLocation}
-                                    eventTime={event.eventTime}
-                                    joinedUsers={event.joinedUsers}
-
-                                />
-                            )
-                        })
-                        }
-                    </div>
-            </div>
+        <>
+        <h1 className="font-bold text-3xl my-4">Owned Events</h1>
+        <div className="w-[1000px]">
+        {ownedEvents.map(event => {
+            return (
+                <EventManagementCard
+                    key={event._id}
+                    _id={event._id}
+                    eventName={event.eventName}
+                    eventDescription={event.eventDescription}
+                    images={event.images}
+                    isPublic={event.public}
+                    eventLocation={event.eventLocation}
+                    eventTime={event.eventTime}
+                    joinedUsers={event.joinedUsers}
+                />
+            )
+        })
+        }
         </div>
+        <div className="w-[1000px]">
+            <h1 className="font-bold text-3xl my-4">Joined Events</h1>
+            {joinedEvents.map(event => {
+                return (
+                    <EventManagementCard
+                        key={event._id}
+                        _id={event._id}
+                        eventName={event.eventName}
+                        eventDescription={event.eventDescription}
+                        images={event.images}
+                        isPublic={event.public}
+                        eventLocation={event.eventLocation}
+                        eventTime={event.eventTime}
+                        joinedUsers={event.joinedUsers}
+
+                    />
+                )
+            })
+            }
+        </div>    
+        </>
     )
 }

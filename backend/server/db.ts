@@ -1,4 +1,3 @@
-import { initializeDefaultAvatar } from "./defaultAvatar.ts"
 import "dotenv/config"
 import {MongoClient, ObjectId} from "mongodb"
 
@@ -61,7 +60,6 @@ if ("m_sDev" in process.env) {
 	}
   }
 
-await initializeDefaultAvatar()
 console.log("Registered collections.")
 
 export default g_coDb
