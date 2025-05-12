@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Navbar from "../components/navigation/Navbar";
-import Sidebar from "../components/navigation/Sidebar";
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { fetchSingleEvent, updateEvent } from "../redux/event/singleEventSlice.ts";
 import { AppDispatch } from "../redux/store.ts";
 import { useAppSelector } from "../hook/hooks.ts";
-import { toggle } from "../redux/components/sidebarSlice.ts";
 import EditEventModal from "../components/EditEventModal";
 import { fetchHandler } from "../utils/fetchHandler";
 import { fetchCurrentUser } from "../redux/auth/authSlice";
-import { updateDiscussionDescription, fetchMessages } from "../redux/message/messageSlice";
-import DiscussionBoard from '../components/DiscussionBoard/DiscussionBoard';
+import { fetchMessages } from "../redux/message/messageSlice";
 import EventDetailsCard from "../components/EventDetailsCard";
 import EventButtonControl from '../components/EventButtonControl';
 import { fetchEventRequest, fetchAllEventRequests, updateRequestStatus, fetchInvitationStatus } from '../redux/rsvp/rsvpSlice';
@@ -26,9 +22,7 @@ function EventDetail() {
   const { event: currentEvent, status } = useAppSelector(state => state.singleEvent);
   const { messages } = useAppSelector(state => state.messages);
   const { request, allRequests, invitation } = useAppSelector(state => state.rsvp);
-  const { isOpen: isSidebarOpen } = useAppSelector(state => state.sidebar);
   const currentUser = useAppSelector((state: { auth: { user: User | null } }) => state.auth.user);
-
   const [isEditing, setIsEditing] = useState(false);
 
   // Computed values
@@ -63,16 +57,6 @@ function EventDetail() {
   // Early returns
   if (status === "failed") return navigate("/*"), null;
   if (!currentEvent) return null;
-
-  // Handlers
-  const handleDescriptionUpdate = async (description: string) => {
-    try {
-      await dispatch(updateDiscussionDescription({ eventId: currentEvent._id, description })).unwrap();
-      await dispatch(fetchSingleEvent(currentEvent._id));
-    } catch (error) {
-      console.error('Failed to update description:', error);
-    }
-  };
 
   const handleUpdate = async (values: { 
     eventName: string, eventLocation: string, 
@@ -153,8 +137,6 @@ function EventDetail() {
     }
   };
 
-  const toggleSidebar = () => dispatch(toggle())
-
   const getStatusMessage = () => {
     if (currentEvent.public) {
       if (isOwner) return null;
@@ -171,72 +153,70 @@ function EventDetail() {
   const statusMessage = getStatusMessage();
 
   return (
-    <div className="flex">
-      <Sidebar isOpen={isSidebarOpen} />
-      <div className="flex-1">
-        <Navbar toggleSidebar={toggleSidebar} />
-        <main
-          className={`mt-16 px-4 py-8 transition-all duration-300 ${
-            isSidebarOpen ? "ml-72" : "ml-8"
-          }`}
-        >
-          <div className="max-w-7xl mx-auto">
-            {!currentEvent.public &&
-            !isOwner &&
-            (!invitation || invitation.status !== "Accepted") ? (
-              <div className="flex items-center justify-center h-96">
-                <div className="bg-white shadow-lg rounded-xl p-8 max-w-md text-center">
-                  <div className="text-5xl text-red-500 mb-4">🚫</div>
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                    Access Denied
-                  </h2>
-                  <p className="text-gray-600 mb-4">
-                    You don't have the permission to view this event.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <div className="lg:col-span-3">
-                  <EventDetailsCard 
-                    eventName={currentEvent.eventName}
-                    eventLocation={currentEvent.eventLocation}
-                    eventDescription={currentEvent.eventDescription}
-                    eventTime={currentEvent.eventTime}
-                    images={currentEvent.images}
-                    organiserID={currentEvent.organiserID}
-                    statusMessage={statusMessage}
-                  />
-
-                  <DiscussionBoard 
-                    eventId={currentEvent._id}
-                    isOwner={isOwner}
-                    canInteract={canInteract}
-                    currentDescription={currentEvent.discussionDescription}
-                    messages={messages}
-                    onUpdateDescription={handleDescriptionUpdate}
-                  /> 
-                </div>
-                <div className="lg:col-span-2">
-                  <EventButtonControl
-                    isPublic={currentEvent.public}
-                    isOwner={isOwner}
-                    currentUserId={currentUserId ?? ""}
-                    request={request}
-                    requests={allRequests}
-                    onEdit={() => setIsEditing(true)}
-                    onInvite={handleInvite}
-                    onRequestToJoin={handleRequestToJoin}
-                    onRequestUpdate={handleRequestUpdate}
-                    eventTime={currentEvent.eventTime}
-                    onInform={handleInform}
-                  />
-                </div>
-              </div>
-            )}
+    <>
+      {!currentEvent.public &&
+      !isOwner &&
+      (!invitation || invitation.status !== "Accepted") ? (
+        <div className="flex items-center justify-center h-96">
+          <div className="bg-white shadow-lg rounded-xl p-8 max-w-md text-center">
+            <div className="text-5xl text-red-500 mb-4">🚫</div>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              Access Denied
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You don't have the permission to view this event.
+            </p>
           </div>
-        </main>
-      </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3">
+            <EventDetailsCard 
+              eventName={currentEvent.eventName}
+              eventLocation={currentEvent.eventLocation}
+              eventDescription={currentEvent.eventDescription}
+              eventTime={currentEvent.eventTime}
+              images={currentEvent.images}
+              organiserID={currentEvent.organiserID}
+              statusMessage={statusMessage}
+            />
+
+            <Link 
+              to={`/event-detail/${currentEvent._id}/discussion`}
+              className="mt-8 border-t pt-8 block"
+            >
+              <h2 className="text-2xl font-bold mb-6 hover:text-blue-600 transition-colors">
+                Discussion Board →
+              </h2>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-600">
+                  {currentEvent.discussionDescription || 'Click to view or participate in the discussion'}
+                </p>
+                <div className="mt-4 text-sm text-gray-500">
+                  {messages.length} messages •{' '}
+                  {canInteract ? 'Join the conversation' : 'Request access to participate'}
+                </div>
+              </div>
+            </Link> 
+          </div>
+          <div className="lg:col-span-2">
+            <EventButtonControl
+              isPublic={currentEvent.public}
+              isOwner={isOwner}
+              currentUserId={currentUserId ?? ""}
+              request={request}
+              requests={allRequests}
+              onEdit={() => setIsEditing(true)}
+              onInvite={handleInvite}
+              onRequestToJoin={handleRequestToJoin}
+              onRequestUpdate={handleRequestUpdate}
+              eventTime={currentEvent.eventTime}
+              onInform={handleInform}
+            />
+          </div>
+        </div>
+      )}
+      
       <EditEventModal
         show={isEditing}
         onClose={() => setIsEditing(false)}
@@ -250,7 +230,7 @@ function EventDetail() {
        // onCancel={() => setIsEditing(false)}
         onSubmit={handleUpdate}
       />
-    </div>
+    </>
   );
 }
 

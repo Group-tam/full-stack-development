@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const DEFAULT_AVATAR_ID = new ObjectId("000000000000000000000000")
-const DEFAULT_AVATAR_PATH = path.join(__dirname, 'public', 'default-avatar.png')
+const DEFAULT_AVATAR_PATH = path.join(__dirname, '../../frontend/public/avatar-default.svg')
 
 export async function initializeDefaultAvatar() {
   const bucket = getGridFSBucket()
@@ -30,8 +30,8 @@ export async function initializeDefaultAvatar() {
     const stream = fs.createReadStream(DEFAULT_AVATAR_PATH)
     const uploadStream = bucket.openUploadStreamWithId(
       DEFAULT_AVATAR_ID,
-      'default-avatar.png',
-      { contentType: 'image/png' }
+      'avatar-default.svg',
+      { contentType: 'image/svg' }
     )
     
     await new Promise((resolve, reject) => {

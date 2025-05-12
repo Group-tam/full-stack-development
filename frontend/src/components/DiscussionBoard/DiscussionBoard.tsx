@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
-import { XMarkIcon, CheckIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, CheckIcon, TrashIcon, PencilSquareIcon,  ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Tooltip } from '../Tooltip';
 import CommentList from './CommentList';
 import ReplyForm from './ReplyForm';
 import { Message } from '../../dataTypes/type';
-
+import { Link } from 'react-router-dom';
 
 interface DiscussionBoardProps {
   eventId: string;
@@ -37,6 +37,16 @@ export default function DiscussionBoard({
   };
 
   return (
+    <>
+      <div className="mb-8">
+        <Link 
+          to={`/event-detail/${eventId}`}
+          className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+        >
+          <ArrowLeftIcon className="w-5 h-5 mr-2" />
+          Back to Event Details
+        </Link>
+    </div>
     <div className="mt-8 border-t pt-8">
       <h2 className="text-2xl font-bold mb-6">Discussion Board</h2>
 
@@ -159,5 +169,6 @@ export default function DiscussionBoard({
         </div>
       )}
     </div>
+    </>
   );
 }

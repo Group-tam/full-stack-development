@@ -46,7 +46,7 @@ export default function EventDetailsCard({ organiserID, ...props }: EventDetails
               <div className="relative h-12 w-12">
                 <div className="absolute inset-0 rounded-full overflow-hidden shadow-sm">
                   <img
-                    src={`/user/image/${organizer.avatar}`}
+                    src={(organizer.avatar != "000000000000000000000000")? `/user/image/${organizer.avatar}` : '/avatar-default.svg'}
                     alt={`${organizer.username}'s avatar`}
                     className="w-full h-full object-cover"
                     style={{ transform: `scale(${organizer.avatarZoom})` }}

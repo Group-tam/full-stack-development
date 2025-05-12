@@ -42,11 +42,11 @@ export default class BaseComment extends Component<BaseCommentProps, BaseComment
     return (
       <div className="h-8 w-8 rounded-full overflow-hidden mr-2">
         <img 
-          src={`/user/image/${comment.user?.avatar}`}
+          src={(comment.user?.avatar != "000000000000000000000000") ? `/user/image/${comment.user?.avatar}` : '/avatar-default.svg'}
           className="w-full h-full object-cover"
           alt={comment.user?.username}
           style={{
-            transform: `scale(${comment.user?.avatarZoom})`,
+        transform: `scale(${comment.user?.avatarZoom})`,
           }}
         />
       </div>
