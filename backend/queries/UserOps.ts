@@ -1,11 +1,8 @@
 import g_coExpress from "express"
 const g_coRouter = g_coExpress.Router()
-
 import g_coDb from "../server/db.ts"
-
 const g_coUsers = g_coDb.collection("users")
 await g_coUsers.createIndex({ username: 1 }, { unique: true })
-
 import g_coBcrypt from "bcrypt"
 import "dotenv/config"
 import g_codes from "../server/statuses.ts"
@@ -23,9 +20,7 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 	try {
 		// Existing user check  Correct
 		
-		const existingUser = await g_coUsers.findOne({
-			$or: [{ username },{ emailAddress: email }]})
-
+		const existingUser = await g_coUsers.findOne({$or: [{ username },{ emailAddress: email }]})
 		// Conflict handling  Correct
 		if (existingUser) {
 			return a_oResponse.status(g_codes("Conflict")).json({ 

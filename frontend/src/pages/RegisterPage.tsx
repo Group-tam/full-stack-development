@@ -3,6 +3,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { validatePassword, PasswordValidation, validatePasswordMatch } from '../utils/passwordValidator';
 import { getInputStyles, ValidationState } from '../utils/validationStyles';
 import {Link, useNavigate} from "react-router-dom";
+import TermsModal from '../components/Modals/TermsModal';
 import AvatarUploader from '../components/AvatarUploader';
 
 interface FormData {
@@ -13,6 +14,7 @@ interface FormData {
 }
 
 export default function RegisterPage() {
+	const [showTermsModal, setShowTermsModal] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [isTermsAccepted, setIsTermsAccepted] = useState(false);
@@ -123,7 +125,14 @@ export default function RegisterPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4">
+		<div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4 mt-5">
+				<Link to="/" className="inline-block">
+					<img
+						src="/AppNameCard.svg"
+						alt="AppNameCard"
+						className="h-16 w-auto"
+					/>
+				</Link>
 			<div className="bg-white rounded-lg shadow-md max-w-4xl gap-4 w-full flex">
 				{/* Left Column - Existing Form */}
 				<div className="flex-1">
@@ -269,7 +278,13 @@ export default function RegisterPage() {
 								/>
 								<span className="text-sm text-gray-600">
 					                By creating our account, I agree to <span className="font-semibold">SeroMeet</span>
-					                <b> <u>Terms of use and Privacy Policy</u></b>
+					                <b>
+										 <button
+											type="button"
+											className="text-blue-600 hover:underline focus:outline-none"
+											onClick={() => setShowTermsModal(true)}
+											> <u>Terms of use and Privacy Policy</u>
+										</button> </b>
 				                </span>
 							</div>
 
@@ -319,6 +334,10 @@ export default function RegisterPage() {
 					/>
 				</div>
 			</div>
+			<TermsModal 
+			show={showTermsModal}
+			onClose={() => setShowTermsModal(false)}
+			/>
 		</div>
 	)
 }

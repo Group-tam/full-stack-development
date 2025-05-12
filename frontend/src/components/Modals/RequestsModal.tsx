@@ -1,4 +1,4 @@
-import { Request, RequestStatus } from '../dataTypes/type';
+import { Request, RequestStatus } from '../../dataTypes/type';
 import { BaseModal, BaseModalProps } from './BaseModal';
 
 interface RequestsModalProps extends BaseModalProps {

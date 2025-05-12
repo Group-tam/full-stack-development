@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { BaseModal, BaseModalProps } from './BaseModal';
-import { User } from '../dataTypes/type';
-import { fetchHandler } from '../utils/fetchHandler';
+import { User } from '../../dataTypes/type';
+import { fetchHandler } from '../../utils/fetchHandler';
 
 interface InviteMembersModalProps extends BaseModalProps {
   onSubmit: (emails: string[]) => Promise<void>;

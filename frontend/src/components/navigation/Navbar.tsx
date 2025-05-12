@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { fetchHandler } from '../../utils/fetchHandler';
 import {Notification} from "../../dataTypes/type.ts";
-import MessageViewModal from '../MessageViewModal';
+import MessageViewModal from '../Modals/MessageViewModal.tsx';
 import {useFetch} from "../../utils/customHooks.ts";
 
 
