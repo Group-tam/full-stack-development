@@ -1,4 +1,4 @@
-import {useFetch} from "../utils/customHooks.ts";
+import {useFetch} from "../../utils/customHooks.ts";
 
 interface EventDetailsCardProps {
   eventName: string;

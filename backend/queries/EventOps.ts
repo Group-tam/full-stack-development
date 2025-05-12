@@ -35,11 +35,7 @@ g_coRouter.post("/", g_coExpress.json(), async function (a_oRequest, a_oResponse
 		})
 
 		// Update the user's document to include this event
-		await g_coUsers.updateOne(
-			{ _id: a_oRequest.session["User ID"] },
-			{ $push: { organisedEvents: newEventID.insertedId } }
-		)
-
+		await g_coUsers.updateOne({ _id: a_oRequest.session["User ID"] }, { $push: { organisedEvents: newEventID.insertedId } })
 		a_oResponse.sendStatus(g_codes("Success"))
 		
 	} catch (error) {
@@ -66,14 +62,9 @@ g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_
 	  const senderId = a_oRequest.session["User ID"]
   
 	  // Verify ownership
-	  const event = await g_coEvents.findOne({
-		_id: new ObjectId(eventId),
-		organiserID: new ObjectId(senderId)
-	  })
+	  const event = await g_coEvents.findOne({_id: new ObjectId(eventId), organiserID: new ObjectId(senderId)})
   
-	  if (!event) {
-		return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
-	  }
+	  if (!event) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
   
 	  // Check for any duplicates
 	  const duplicateUserIds: string[] = []
@@ -83,9 +74,7 @@ g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_
 		  receiverId: new ObjectId(userId),
 		  senderId: new ObjectId(senderId),
 		})
-		if (existing) {
-		  duplicateUserIds.push(userId)
-		}
+		if (existing) duplicateUserIds.push(userId)
 	  }
   
 	  // If any duplicates found, abort and return error
@@ -105,10 +94,7 @@ g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_
 			senderId: new ObjectId(senderId),
 			state: "Pending"
 		  })
-		  return {
-			receiverId: userId,
-			invitationId: invitation.insertedId
-		  }
+		  return { receiverId: userId, invitationId: invitation.insertedId }
 		})
 	  )
   
@@ -121,13 +107,9 @@ g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_
 	  // Update each user's invitations array
 	  await Promise.all(
 		invitationResults.map(async ({ receiverId, invitationId }) => {
-		  await g_coUsers.updateOne(
-			{ _id: new ObjectId(receiverId) },
-			{ $push: { invitations: invitationId } }
-		  )
+		  await g_coUsers.updateOne({ _id: new ObjectId(receiverId) }, { $push: { invitations: invitationId } })
 		})
-	  )
-  
+	  ) 
 	  a_oResponse.sendStatus(g_codes("Success"))
 	} catch (error) {
 	  console.error("Invite error:", error)
@@ -139,26 +121,18 @@ g_coRouter.get("/", async function(a_oRequest, a_oResponse) {
 	try {
 		const { public: sPublic, organiserId, _id } = a_oRequest.query
 		const l_oFilter: any = {}
-		if (sPublic !== undefined) {
-			l_oFilter.public = sPublic === "true"
-		}
+		if (sPublic !== undefined) l_oFilter.public = sPublic === "true"
 		else if (_id !== undefined) {
 			try {
 				// Attempt to convert the _id string into a Mongo ObjectId
 				// and add it to the filter for direct ID lookups
 				l_oFilter["_id"] = new ObjectId(_id as string)
-			} catch (err) {
-				// If conversion fails, respond with 400 Bad Request
-				return a_oResponse.status(400).json({ error: "Invalid _id" })
-			}
+			} catch (err) { return a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid _id" }) }// If conversion fails, respond with 400 Bad Request
 		}
-
-
 		// Fetch filtered event
 		const l_aEvents = await g_coEvents.find(l_oFilter).toArray()
-
 		// Send back events with HTTP 200
-		a_oResponse.status(g_codes("Success")).json(l_aEvents)
+		a_oResponse.status(g_codes("Success")).json(l_aEvents) 
 	} catch (err) {
 		console.error("Failed to fetch events:", err)
 		a_oResponse.sendStatus(g_codes("Server error"))
@@ -167,10 +141,7 @@ g_coRouter.get("/", async function(a_oRequest, a_oResponse) {
 
 g_coRouter.get("/owned", async function(a_oRequest, a_oResponse) {
 	try {
-		const userId = a_oRequest.session["User ID"]
-
-		const l_aEvents = await g_coEvents.find({ organiserID: userId }).toArray()
-
+		const l_aEvents = await g_coEvents.find({ organiserID: a_oRequest.session["User ID"] }).toArray()
 		a_oResponse.status(g_codes("Success")).json(l_aEvents)
 	} catch (err) {
 		console.error("Failed to fetch events:", err)
@@ -179,9 +150,7 @@ g_coRouter.get("/owned", async function(a_oRequest, a_oResponse) {
 })
 g_coRouter.get("/joined", async function(a_oRequest, a_oResponse) {
 	try {
-		const userId = a_oRequest.session["User ID"]
-
-		const l_aEvents = await g_coEvents.find({ joinedUsers: userId }).toArray()
+		const l_aEvents = await g_coEvents.find({ joinedUsers: a_oRequest.session["User ID"] }).toArray()
 
 		a_oResponse.status(g_codes("Success")).json(l_aEvents)
 	} catch (err) {
@@ -192,17 +161,10 @@ g_coRouter.get("/joined", async function(a_oRequest, a_oResponse) {
 g_coRouter.get("/image/:id", async function(a_oRequest, a_oResponse) {
     try {
 		const l_oId = new ObjectId(a_oRequest.params.id)
-
 		const downloadStream = getGridFSBucket().openDownloadStream(l_oId)
-
 		a_oResponse.set("Content-Type", "image/jpeg")
-
-		const onError = function() {
-			a_oResponse.sendStatus(g_codes("Not found"))
-		}
-		downloadStream
-			.on("error", onError)
-			.pipe(a_oResponse)
+		const onError = function() { a_oResponse.sendStatus(g_codes("Not found"))}
+		downloadStream.on("error", onError).pipe(a_oResponse)
 	} catch (a_oError) {
         a_oResponse.status(g_codes("Invalid")).json({ error: "Invalid ID or error fetching image", details: a_oError })
     }
@@ -224,23 +186,10 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
         const userObjectId = new ObjectId(userId)
 
         // Verify ownership
-        const existingEvent = await g_coEvents.findOne({ 
-            _id: eventObjectId,
-            organiserID: userObjectId 
-        })
-		const updateData = {
-            eventName,
-            eventLocation,
-            eventDescription,
-			eventTime: new Date(eventTime), 
-			images: new ObjectId(images)
-        }
+        const existingEvent = await g_coEvents.findOne({ _id: eventObjectId, organiserID: userObjectId})
+		const updateData = {eventName, eventLocation, eventDescription, eventTime: new Date(eventTime), images: new ObjectId(images) }
 
-        if (!existingEvent) {
-            return a_oResponse.status(g_codes("Unauthorised")).json({ 
-                error: "Not authorized to update this event or event not found" 
-            })
-        }
+        if (!existingEvent) return a_oResponse.status(g_codes("Unauthorised")).json({  error: "Not authorized to update this event or event not found" })
 
         // Perform update
 		const result = await g_coEvents.findOneAndUpdate(
@@ -264,30 +213,16 @@ g_coRouter.put("/:id", g_coExpress.json(), async function(a_oRequest, a_oRespons
 
 		 // Get recipients
 		 let userIds = []
-		 if (updatedEvent.public) {
-			 userIds = updatedEvent.joinedUsers
-		 } else {
-			 const invitations = await g_coInvitations.find({
-				 eventId: eventObjectId,
-				 state: "Accepted"
-			 }).toArray()
+		 if (updatedEvent.public) userIds = updatedEvent.joinedUsers
+		 else {
+			 const invitations = await g_coInvitations.find({eventId: eventObjectId, state: "Accepted"}).toArray()
 			 userIds = invitations.map(i => i.receiverId)
 		 }
  
 		 // Update user notifications
-		 await g_coUsers.updateMany(
-			 { _id: { $in: userIds } },
-			 { $push: { notifications: notification.insertedId } }
-		 )
- 
+		 await g_coUsers.updateMany({ _id: { $in: userIds } },{ $push: { notifications: notification.insertedId } })
 		 // Update event notifications
-		 await g_coEvents.updateOne(
-			 { _id: eventObjectId },
-			 { $push: { notifications: notification.insertedId } }
-		 )
- 
-
-
+		 await g_coEvents.updateOne({ _id: eventObjectId },{ $push: { notifications: notification.insertedId } })
         a_oResponse.status(g_codes("Success")).json(result)
     } catch (error) {
         console.error("Update error:", error)
@@ -307,11 +242,7 @@ g_coRouter.put("/:id/discussion", g_coExpress.json(), async function(a_oRequest,
       organiserID: new ObjectId(userId)
     })
 
-    if (!event) {
-      return a_oResponse.status(g_codes("Unauthorised")).json({ 
-        error: "Not authorized to update this event" 
-      })
-    }
+    if (!event) return a_oResponse.status(g_codes("Unauthorised")).json({error: "Not authorized to update this event" })
 
     // Update discussion description
     await g_coEvents.updateOne(
@@ -330,12 +261,7 @@ g_coRouter.put("/:id/discussion", g_coExpress.json(), async function(a_oRequest,
 
 g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_oResponse) {
 	try {
-
-	  if (!ObjectId.isValid(a_oRequest.params.id)) {
-		return a_oResponse.status(g_codes("Invalid")).json({ 
-		  error: "Invalid image ID format" 
-		})
-	  }
+	  if (!ObjectId.isValid(a_oRequest.params.id)) return a_oResponse.status(g_codes("Invalid")).json({  error: "Invalid image ID format"})
   
 	  const l_oId = new ObjectId(a_oRequest.params.id)
 	  const bucket = getGridFSBucket()
@@ -362,5 +288,4 @@ g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_
 	  })
 	}
   })
-
 export default g_coRouter

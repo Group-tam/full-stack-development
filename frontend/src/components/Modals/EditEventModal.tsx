@@ -1,6 +1,6 @@
 import React from 'react';
 import { CameraIcon } from '@heroicons/react/24/outline';
-import { formatDateForInput } from '../utils/dateUtils';
+import { formatDateForInput } from '../../utils/dateUtils';
 import { BaseModal } from './BaseModal';
 import { BaseModalProps } from './BaseModal';
 

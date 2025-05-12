@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import InviteMembersModal from './InviteMembersModal';
+import InviteMembersModal from './Modals/InviteMembersModal';
 import type { Request, RequestStatus } from './../dataTypes/type';
-import RequestsModal from './RequestsModal';
-import InformModal from './InformModal';
+import RequestsModal from './Modals/RequestsModal';
+import InformModal from './Modals/InformModal';
 
 interface EventButtonControlProps {
   isPublic: boolean;
