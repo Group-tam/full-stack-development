@@ -5,9 +5,11 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "default-main" ]
+    branches:
+      - default-main
   pull_request:
-    branches: [ "default-main" ]
+    branches:
+      - default-main
 
 jobs:
   build:
@@ -20,9 +22,9 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@main
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@main
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
