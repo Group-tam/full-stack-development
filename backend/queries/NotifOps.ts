@@ -165,7 +165,9 @@ g_coRouter.post("/inform", g_coExpress.json(), async (a_oRequest, a_oResponse) =
 				recipientIds = event.joinedUsers
 		}
 
-		// For immediate notifications
+		// For immediate notifications 
+		// Since for immediate notifications, the minutesBefore would be undefined hence this if block executes
+		//As shown, the users get the notification immediately and the notification is marked as sent
 		if (!minutesBefore) {
 			await g_coDb.collection("users").updateMany(
 				{ _id: { $in: recipientIds } },

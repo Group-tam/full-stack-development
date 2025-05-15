@@ -64,6 +64,7 @@ export const updateEvent = createAsyncThunk<
 			// Delete old image ONLY after successful update
 			console.log(oldImageId)
 			if (oldImageId && oldImageId !== imageId) {
+				console.log("HelloWorld")
 				const deleteRes = await fetchHandler(`/event/image/${oldImageId}`, {
 					method: 'DELETE',
 				});

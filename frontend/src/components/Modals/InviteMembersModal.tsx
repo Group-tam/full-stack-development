@@ -108,7 +108,7 @@ export default class InviteMembersModal extends BaseModal<InviteMembersModalProp
 		try {
 			await this.props.onSubmit(this.state.selectedUsers.map(user => user._id));
 		} catch (err) {
-			const error = err as { duplicateUserIds?: string[] };
+			const error = err as { duplicateUserIds?: string[], error?: string };
 			if (error?.duplicateUserIds) {
 				this.setState({
 					permanentDuplicates: error.duplicateUserIds,
@@ -117,8 +117,16 @@ export default class InviteMembersModal extends BaseModal<InviteMembersModalProp
 						duplicateIds: error.duplicateUserIds
 					}
 				});
+			} else if (error?.error === "invlim") {
+				this.setState({
+					error: { 
+						message: 'Cannot send invites. Would exceed invitation limit.',
+					}
+				});
 			} else {
 				this.setState({
+					//This is just for the frontend display, because all of the errors are handled by the
+					//previous ifs, the error here is just for displaying the success message
 					error: { message: 'Invitations sent successfully!', success: true }
 				});
 			}

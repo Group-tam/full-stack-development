@@ -96,15 +96,13 @@ function EventDetail() {
 	const handleInvite = async (userIds: string[]) => {
 		try {
 			const response = await fetchHandler(`/event/${id}/invite`, {
-				method: "POST",
+				method: "PUT",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ userIds }),
 			});
 			if (response.status === 409) {
-				console.log(
-					"Some of the invitations in the list have existed already."
-				);
+				//Handle both cases where some of the invitations have been existed or the invitation limit reached
 				const data = await response.json();
 				throw { ...data, duplicateUserIds: data.duplicateUserIds };
 			}

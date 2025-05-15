@@ -48,7 +48,6 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 	} catch (error) {
 		// Add duplicate key check
 		//console.log(error.errInfo.details.schemaRulesNotSatisfied[0]. propertiesNotSatisfied)
-		if (error.code === 11000) return a_oResponse.status(g_codes("Conflict")).json({ error: "Username/email already exists" })
 		a_oResponse.status(g_codes("Server error")).json({ error: "Server error during registration" })
 	}
 })

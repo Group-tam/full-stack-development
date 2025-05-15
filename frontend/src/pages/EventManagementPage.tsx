@@ -23,6 +23,7 @@ export default function EventManagementPage() {
 
     return (
         <>
+        <div data-testid="owned-events">
             <h1 className="font-bold text-3xl my-4">Owned Events</h1>
             <div className="w-[1000px]">
             {ownedEvents.map(event => {
@@ -42,6 +43,8 @@ export default function EventManagementPage() {
             })
             }
             </div>
+        </div>
+        <div data-testid="joined-events">
             <div className="w-[1000px]">
                 <h1 className="font-bold text-3xl my-4">Joined Events</h1>
                 {joinedEvents.map(event => {
@@ -61,7 +64,8 @@ export default function EventManagementPage() {
                     )
                 })
                 }
-            </div>    
+            </div> 
+        </div>   
         </>
     )
 }

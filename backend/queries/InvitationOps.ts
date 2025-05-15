@@ -12,29 +12,19 @@ import { ObjectId } from "mongodb"
 const g_coEvents = g_coDb.collection("events")
 const g_coUsers = g_coDb.collection("users")
 
-
-g_coRouter.get("/received", async function(a_oRequest, a_oResponse) {
-	try {
-		const userId = a_oRequest.session["User ID"]
-
-		const l_aResponse = await g_coInvitations.find({
-				receiverId: userId,
-		}).toArray()
-
-		a_oResponse.status(g_codes("Success")).json(l_aResponse)
-	} catch (a_oError) {
-		console.log(a_oError)
-		return a_oResponse.status(g_codes("Server error")).json(a_oError)
-	}
-})	
-
 g_coRouter.get("/user-invitations", async (a_oRequest, a_oResponse) => {
 	try {
 		const userId = new ObjectId(a_oRequest.session["User ID"])
-		const invitations = await g_coInvitations.find({
-			receiverId: userId
-		}).toArray()
-
+		// Get user's invitations from users collection
+		const user = await g_coUsers.findOne(
+			{ _id: new ObjectId(userId) },
+			{ projection: { invitations: 1 } } // Via an invitations field from the user collection
+		)
+			if (!user?.invitations) return a_oResponse.status(g_codes("Success")).json([])
+				// Get full invitation details
+				const invitations = await g_coInvitations.find({
+					_id: { $in: user.invitations.map(id => new ObjectId(id)) }
+				}).toArray()
 		const enrichedInvitations = await Promise.all(
 			invitations.map(async (invitation) => {
 				const event = await g_coEvents.findOne(
