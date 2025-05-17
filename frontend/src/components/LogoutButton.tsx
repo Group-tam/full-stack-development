@@ -30,7 +30,8 @@ export default function LogoutButton({ className = "", icon, children }: LogoutB
     };
 
     return (
-        <button 
+        <button
+            data-testid="logout-button" 
             onClick={handleLogout}
             className={className}
         >

@@ -11,6 +11,7 @@ import messageReducer from './message/messageSlice';
 import rsvpReducer from './rsvp/rsvpSlice';
 import eventsReducer from "./event/eventsSlice.ts";
 import usersReducer from "./user/usersSlice.ts"
+import searchReducer from "./search/searchSlice.ts";
 
 export const store = configureStore({
     reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
         globalSetting: globalSettingReducer,
         messages: messageReducer,
         rsvp: rsvpReducer,
+        search: searchReducer,
     }
 });
 

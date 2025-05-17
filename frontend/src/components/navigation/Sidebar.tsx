@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 					<span>Event Management</span>
 				</Link>
 
-				<Link to="/rsvp-responses" className="flex items-center space-x-3 px-4 py-3 text-gray-800 hover:bg-[#f7dc6f] rounded-lg transition-colors">
+				<Link to="/rsvp-responses" className="flex items-center space-x-3 px-4 py-3 text-gray-800 hover:bg-[#f7dc6f] rounded-lg transition-colors" data-testid="rsvp-tab">
 					<ClipboardDocumentListIcon className="h-6 w-6" />
 					<span>RSVP Responses</span>
 				</Link>

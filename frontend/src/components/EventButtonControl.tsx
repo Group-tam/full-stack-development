@@ -82,6 +82,7 @@ export default function EventButtonControl({
 				) : request ? (null
 				) : (
 					<button
+						data-testid="request-join-button"
 						onClick={onRequestToJoin}
 						className="w-full bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold py-3 px-6 rounded-full transition-colors"
 					>

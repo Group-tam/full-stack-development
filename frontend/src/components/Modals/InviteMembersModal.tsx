@@ -142,7 +142,7 @@ export default class InviteMembersModal extends BaseModal<InviteMembersModalProp
 		if (!show) return null;
 
 		return (
-			<div className={this.modalStyles.overlay}>
+			<div data-testid="invitation-card" className={this.modalStyles.overlay}>
 				<div className={this.modalStyles.backdrop} onClick={onClose} />
 				
 				<div className={this.modalStyles.container}>
@@ -159,6 +159,7 @@ export default class InviteMembersModal extends BaseModal<InviteMembersModalProp
 					<div className="space-y-4" ref={this.searchRef}>
 						<div className="relative">
 							<input
+								data-testid="invite-input"
 								type="text"
 								value={searchTerm}
 								onChange={(e) => this.setState({ searchTerm: e.target.value })}

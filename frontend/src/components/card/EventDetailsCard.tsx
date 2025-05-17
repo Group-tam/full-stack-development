@@ -14,7 +14,7 @@ export default function EventDetailsCard({ organiserID, ...props }: EventDetails
 	const { data: organizer } = useFetch<{username: string; avatar: string; avatarZoom: number}>(`/user/${organiserID}`);
 	
 	return (
-		<div className="lg:col-span-2">
+		<div className="lg:col-span-2" data-testid="event-detail-card">
 			<img
 				src={`/event/image/${props.images}`}
 				alt={props.eventName}
@@ -66,9 +66,9 @@ export default function EventDetailsCard({ organiserID, ...props }: EventDetails
 							<p className="text-gray-900">{props.eventLocation}</p>
 						</div>
 
-						<div>
+						<div data-testid="event-time">
 							<h3 className="text-sm font-semibold text-gray-500 mb-1">🕐 Date & Time</h3>
-							<p className="text-gray-900">
+							<p className="text-gray-900" data-testid="event-time-value">
 								{new Date(props.eventTime).toLocaleString('en-US', {
 									weekday: 'short',
 									year: 'numeric',

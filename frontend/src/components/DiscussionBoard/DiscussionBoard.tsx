@@ -38,7 +38,7 @@ export default function DiscussionBoard({
 
 	return (
 	<>
-	<div data-testid="event-card">
+	<div data-testid="discussion-board">
 		<div className="mb-8">
 			<Link 
 				to={`/event-detail/${eventId}`}
