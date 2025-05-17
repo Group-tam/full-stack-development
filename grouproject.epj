@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project grouproject",
     "copyright": "Copyright (C) 2025 , ",
-    "saved": "2025-05-17, 11:41:09"
+    "saved": "2025-05-17, 12:38:01"
   },
   "project": {
     "AUTHOR": "",
@@ -20,6 +20,11 @@
       "*.js": "SOURCES",
       "*.json": "OTHERS",
       "*.md": "OTHERS",
+      "*.py": "SOURCES",
+      "*.py3": "SOURCES",
+      "*.pyw": "SOURCES",
+      "*.pyw3": "SOURCES",
+      "*.rb": "SOURCES",
       "*.rst": "OTHERS",
       "*.toml": "OTHERS",
       "*.ts": "SOURCES",
@@ -50,7 +55,7 @@
       "MakeTarget": "",
       "MakeTestOnly": true
     },
-    "MIXEDLANGUAGE": false,
+    "MIXEDLANGUAGE": true,
     "OTHERS": [
       ".deepsource.toml",
       ".github/FUNDING.yml",
