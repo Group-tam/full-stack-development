@@ -69,35 +69,6 @@ g_coRouter.get("/", async function(a_oRequest, a_oResponse) {
 		a_oResponse.status(g_codes("Server error")).json(a_oError)
 	}
 })
-
-g_coRouter.put("/", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
-	const { requestId, newState } = a_oRequest.body
-	if (!requestId || !newState) {
-		return a_oResponse.status(g_codes("Invalid")).json({ error: "Missing requestId or newState" })
-	}
-	try {
-		// Update the request state
-		await g_coRequests.updateOne(
-				{ _id: ObjectId.createFromHexString(requestId) },
-				{ $set: { state: newState } }
-		)
-			// If accepted, add sender to joinedUsers of the event
-			if (newState === "Accepted") {
-				const request = await g_coRequests.findOne({ _id: ObjectId.createFromHexString(requestId) })
-				if (request && request.eventId && request.senderId) {
-						await g_coEvents.updateOne(
-								{ _id: new ObjectId(request.eventId) },
-								{ $addToSet: { joinedUsers: new ObjectId(request.senderId) } }
-						)
-				}
-		}
-	} catch (a_oError) {
-		console.error("Error in request update:", a_oError)
-		return a_oResponse.status(g_codes("Server error")).json(a_oError)
-	}
-	a_oResponse.sendStatus(g_codes("Success"))
-})
-
 //Get the requests sent by the user
 g_coRouter.get("/my-requests", async function(a_oRequest, a_oResponse) {
 	try {

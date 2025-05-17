@@ -58,7 +58,7 @@ export default class InformModal extends BaseModal<InformModalProps> {
 		if (!show) return null;
 
 		return (
-			<div className={this.modalStyles.overlay}>
+			<div className={this.modalStyles.overlay} data-testid="inform-modal">
 				<div className={this.modalStyles.backdrop} onClick={onClose}></div>
 				<div className={this.modalStyles.container}>
 					{showSuccess ? (

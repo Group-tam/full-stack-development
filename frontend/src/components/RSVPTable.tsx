@@ -68,7 +68,7 @@ const RSVPTable = () => {
 	};
 
 	return (
-		<div className="rounded-lg border border-gray-200 shadow-lg w-full">
+		<div className="rounded-lg border border-gray-200 shadow-lg w-full" data-testid="rsvp-table">
 			<table className="w-full divide-y divide-gray-200">
 				<thead className="bg-gradient-to-r from-[#0047BA] to-[#409CE3]"> 
 					<tr>

@@ -16,7 +16,7 @@ async function g_bAdmin(a_oRequest, a_oResponse, a_oNext) {
 	}
 }
 
-g_coRouter.get("/", g_bAdmin, async function (a_oRequest, a_oResponse) {
+g_coRouter.get("/", async function (a_oRequest, a_oResponse) {
 	try {
 		const settings = await g_coSettings.findOne(
 			{_id: "global_settings"},

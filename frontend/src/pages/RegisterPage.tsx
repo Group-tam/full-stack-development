@@ -121,16 +121,9 @@ export default function RegisterPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4 mt-5">
-				<Link to="/" className="inline-block">
-					<img
-						src="/AppNameCard.svg"
-						alt="AppNameCard"
-						className="h-16 w-auto"
-					/>
-				</Link>
+		<div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4">
 			<div className="bg-white rounded-lg shadow-md max-w-4xl gap-4 w-full flex">
-				{/* Left Column - Existing Form */}
+				{/* Left Column - Form */}
 				<div className="flex-1">
 					{/* Main Card */}
 					<div className="bg-white p-8 rounded-lg max-w-md w-full">
@@ -315,6 +308,15 @@ export default function RegisterPage() {
 				</div>
 				{/* Right Column - Avatar Upload */}
 				<div className="flex-1 flex flex-col justify-center">
+					<div className="flex justify-center mb-8">
+						<Link to="/" className="inline-block -ml-8">
+							<img
+								src="/AppNameCard.svg"
+								alt="AppNameCard"
+								className="h-12 w-auto -mt-4"
+							/>
+						</Link>
+					</div>
 					<h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
 					<AvatarUploader
 						onAvatarUpload={(imageId) => {

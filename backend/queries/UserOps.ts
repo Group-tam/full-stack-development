@@ -48,13 +48,14 @@ g_coRouter.post("/", g_coExpress.json(), async function(a_oRequest, a_oResponse)
 	} catch (error) {
 		// Add duplicate key check
 		//console.log(error.errInfo.details.schemaRulesNotSatisfied[0]. propertiesNotSatisfied)
-		if (error.code === 11000) return a_oResponse.status(g_codes("Conflict")).json({ error: "Username/email already exists" })
 		a_oResponse.status(g_codes("Server error")).json({ error: "Server error during registration" })
 	}
 })
 //POST for /verify-password because:
 //It hides data in the request body.
 //It aligns with common REST API design for secure operations.
+//This route is provided because even if the user information is available at the frontend
+//but the password field is a HASHED version in order to provide security
 g_coRouter.post("/verify-password", g_coExpress.json(), async (a_oRequest, a_oResponse) => {
 	const userId = a_oRequest.session["User ID"]
 	const { password } = a_oRequest.body
@@ -185,24 +186,6 @@ g_coRouter.get("/:id", async function(a_oRequest, a_oResponse) {
     }
 })
 
-// PUT Route update
-g_coRouter.put("/", async function(a_oRequest, a_oResponse) {
-	try {
-		await g_coUsers.updateMany(
-			g_coFilter(a_oRequest.body),
-			{ $set: {
-				username: a_oRequest.body.username,
-				password: await g_coBcrypt.hash(
-					a_oRequest.body.password, 
-					parseInt(process.env.m_saltRounds || "10")
-				),
-				emailAddress: a_oRequest.body.email,
-				admin: a_oRequest.body.admin
-			} 
-		})
-		a_oResponse.sendStatus(g_codes("Success"))
-	} catch (error) {a_oResponse.status(g_codes("Server error")).json(error)}	
-})
 //A Unified put methods for username, password, and avatar updates
 // using switch case to handle different actions
 g_coRouter.put("/update/:action", g_coExpress.json(), async (a_oRequest, a_oResponse) => {

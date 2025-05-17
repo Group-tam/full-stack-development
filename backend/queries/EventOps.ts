@@ -54,39 +54,43 @@ g_coRouter.post("/image", g_co.single("image"), async function(a_oRequest, a_oRe
 	} catch (err) {a_oResponse.status(g_codes("Server error")).json({ error: "Image upload failed" })}
 })
 
-g_coRouter.post("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
+g_coRouter.put("/:id/invite", g_coExpress.json(), async function(a_oRequest, a_oResponse) {
 	try {
-	  const eventId = a_oRequest.params.id
-	  const { userIds } = a_oRequest.body
-	  console.log(userIds)
-	  const senderId = a_oRequest.session["User ID"]
+		const eventId = a_oRequest.params.id
+		const { userIds } = a_oRequest.body
+		console.log(userIds)
+		const senderId = a_oRequest.session["User ID"]
+		// Verify ownership
+		const event = await g_coEvents.findOne({_id: new ObjectId(eventId), organiserID: new ObjectId(senderId)})
+		if (!event) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
+		// Check for any duplicates
+		const duplicateUserIds: string[] = []
+		for (const userId of userIds) {
+			const existing = await g_coInvitations.findOne({
+			eventId: new ObjectId(eventId),
+			receiverId: new ObjectId(userId),
+			senderId: new ObjectId(senderId),
+			})
+			if (existing) duplicateUserIds.push(userId)
+		}
   
-	  // Verify ownership
-	  const event = await g_coEvents.findOne({_id: new ObjectId(eventId), organiserID: new ObjectId(senderId)})
-  
-	  if (!event) return a_oResponse.status(g_codes("Unauthorized")).json({ error: "Not authorized" })
-  
-	  // Check for any duplicates
-	  const duplicateUserIds: string[] = []
-	  for (const userId of userIds) {
-		const existing = await g_coInvitations.findOne({
-		  eventId: new ObjectId(eventId),
-		  receiverId: new ObjectId(userId),
-		  senderId: new ObjectId(senderId),
-		})
-		if (existing) duplicateUserIds.push(userId)
-	  }
-  
-	  // If any duplicates found, abort and return error
-	  if (duplicateUserIds.length > 0) {
-		return a_oResponse.status(g_codes("Conflict")).json({
-		  error: "Some invitations already exist",
-		  duplicateUserIds
-		})
-	  }
+		// If any duplicates found, abort and return error
+		if (duplicateUserIds.length > 0) {
+			return a_oResponse.status(g_codes("Conflict")).json({
+				error: "Some invitations already exist", duplicateUserIds
+			})
+		}
+
+		// Check invitation limit
+		const settings = await g_coDb.collection("settings").findOne({ _id: "global_settings" });
+		if (userIds.length + (event.participation?.length || 0) > settings.invitationLimit) {
+			return a_oResponse.status(g_codes("Conflict")).json({
+				error: "invlim",
+			})
+		}
   
 	  // No duplicates, we continue to create invitations and update event/user
-	  const invitationResults = await Promise.all(
+	 	const invitationResults = await Promise.all(
 		userIds.map(async (userId: string) => {
 		  const invitation = await g_coInvitations.insertOne({
 			eventId: new ObjectId(eventId),
@@ -273,6 +277,7 @@ g_coRouter.delete("/image/:id",g_coExpress.json(), async function(a_oRequest, a_
 		])
 		
 		if (file.length === 0) return a_oResponse.status(g_codes("Not found")).json({ error: "Image not found" })
+		// Using the same image here means two events having their images of the SAME ID
 		if (eventsUsingImage > 0) {
 			return a_oResponse.status(g_codes("Conflict")).json({ 
 			error: "Image still in use by other events" 

@@ -70,7 +70,7 @@ export default class EditEventModal extends BaseModal<EditEventModalProps> {
 		if (!show) return null;
 
 		return (
-			<div className="fixed inset-0 flex items-center justify-center z-50">
+			<div className="fixed inset-0 flex items-center justify-center z-50" data-testid="event-edit-modal">
 				<div className="fixed inset-0 backdrop-blur-sm" onClick={onClose} />
 				<form
 					onSubmit={this.handleSubmit}

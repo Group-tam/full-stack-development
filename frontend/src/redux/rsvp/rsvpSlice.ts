@@ -58,11 +58,11 @@ export const fetchInvitationStatus = createAsyncThunk(
 export const updateRequestStatus = createAsyncThunk(
 	'rsvp/updateRequestStatus',
 	async ({ requestId, newState }: { requestId: string; newState: RequestStatus }) => {
-		const response = await fetchHandler("/request", {
-			method: "PUT",
+		const response = await fetchHandler(`/request/${requestId}`, {
+			method: "PATCH",
 			credentials: "include",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ requestId, newState }),
+			body: JSON.stringify({ state: newState }),
 		});
 		if (!response.ok) throw new Error('Failed to update request');
 		return { requestId, newState };

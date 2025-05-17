@@ -100,12 +100,16 @@ g_coRouter.delete("/:id", async (a_oRequest, a_oResponse) => {
 			{ _id: userId },
 			{ $pull: { notifications: notificationId } }
 		)
-
-		// Delete the notification document
-		await g_coDb.collection("notifications").deleteOne({
-			_id: notificationId
-		})
-
+		 // Check if any users still have this notification
+        const usersWithNotification = await g_coDb.collection("users").countDocuments({
+            notifications: notificationId
+        })
+		 // If no users have this notification anymore, delete it
+        if (usersWithNotification === 0) {
+            await g_coDb.collection("notifications").deleteOne({
+                _id: notificationId
+            })
+        }
 		a_oResponse.sendStatus(g_codes("Success"))
 	} catch (error) {
 		a_oResponse.status(g_codes("Server error")).json({ error: error.message })
@@ -165,7 +169,9 @@ g_coRouter.post("/inform", g_coExpress.json(), async (a_oRequest, a_oResponse) =
 				recipientIds = event.joinedUsers
 		}
 
-		// For immediate notifications
+		// For immediate notifications 
+		// Since for immediate notifications, the minutesBefore would be undefined hence this if block executes
+		//As shown, the users get the notification immediately and the notification is marked as sent
 		if (!minutesBefore) {
 			await g_coDb.collection("users").updateMany(
 				{ _id: { $in: recipientIds } },

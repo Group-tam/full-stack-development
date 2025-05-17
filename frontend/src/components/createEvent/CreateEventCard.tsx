@@ -49,7 +49,6 @@ export default function CreateEventCard() {
     }, [userEvents, eventLimit]);
     // Check if settings and user events are loaded
 
-
     const uploadImageToServer = async (file: File) => {
         const formData = new FormData()
         formData.append("image", file)
@@ -99,6 +98,7 @@ export default function CreateEventCard() {
 
     return (
         <>
+            {/* For animation*/}
             <style>{`
             .toast-animation {
                 animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 1s;
@@ -176,7 +176,7 @@ export default function CreateEventCard() {
                     </select>
                     <button
                         type="submit"
-                        disabled=  {false} //{buttonDisabled}
+                        disabled= {buttonDisabled}
                         className={`w-42 text-white py-2 rounded-xl ${buttonDisabled ? 'bg-blue-200' : 'bg-blue-500 hover:bg-blue-600 transition duration-200 cursor-pointer'}`}>
                         {buttonDisabled ? 'Event Limit Reached' : 'Create Event'}
                     </button>

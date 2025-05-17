@@ -18,7 +18,7 @@ export interface BaseCommentState {
 	text: string;
 	isCollapsed: boolean; 
 }
-//use the class component to use the inheritance feture
+//use the class component to use the inheritance feature
 export default class BaseComment extends Component<BaseCommentProps, BaseCommentState> {
 	constructor(props: BaseCommentProps) {
 		super(props);
