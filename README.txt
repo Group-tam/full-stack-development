@@ -10,3 +10,5 @@ Contribution:
 Nguyen Khanh An : 5
 Vo Huy Chu: 5
 Mai Le Anh Huy: 5
+
+Presentation Link: https://rmiteduau-my.sharepoint.com/:v:/g/personal/s4019548_rmit_edu_vn/EczvGsg4OElEtXSVJ_seMeYBkjXLRDRjrKYvRNYEqVw1GA?e=C3bQhn
