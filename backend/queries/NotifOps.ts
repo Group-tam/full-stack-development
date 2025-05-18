@@ -9,7 +9,7 @@ import g_coExpress from "express"
 g_coRouter.put("/process", async (a_oRequest, a_oResponse) => {
 	try {
 		const now = new Date()
-		let processedCount = 0
+		let processedCount = 0 //Check if there is any processed notifications
 		const pendingNotifications = await g_coDb.collection("notifications")
 			.find({ 
 				sent: false,
