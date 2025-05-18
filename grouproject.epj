@@ -1,0 +1,226 @@
+{
+  "header": {
+    "comment": "eric project file for project grouproject",
+    "copyright": "Copyright (C) 2025 , ",
+    "saved": "2025-05-18, 08:57:48"
+  },
+  "project": {
+    "AUTHOR": "",
+    "CHECKERSPARMS": {},
+    "DESCRIPTION": "",
+    "DOCSTRING": "",
+    "DOCUMENTATIONPARMS": {},
+    "EMAIL": "",
+    "EMBEDDED_VENV": false,
+    "EOL": 0,
+    "FILETYPES": {
+      "*.cfg": "OTHERS",
+      "*.epj": "OTHERS",
+      "*.ini": "OTHERS",
+      "*.js": "SOURCES",
+      "*.json": "OTHERS",
+      "*.md": "OTHERS",
+      "*.py": "SOURCES",
+      "*.py3": "SOURCES",
+      "*.pyw": "SOURCES",
+      "*.pyw3": "SOURCES",
+      "*.rb": "SOURCES",
+      "*.rst": "OTHERS",
+      "*.toml": "OTHERS",
+      "*.ts": "SOURCES",
+      "*.txt": "OTHERS",
+      "*.yaml": "OTHERS",
+      "*.yml": "OTHERS",
+      "GNUmakefile": "OTHERS",
+      "Makefile": "OTHERS",
+      "README": "OTHERS",
+      "README.*": "OTHERS",
+      "makefile": "OTHERS"
+    },
+    "FORMS": [],
+    "HASH": "c53ebec93d161378fd6c41a8215d7f6741bdeb1d",
+    "IDLPARAMS": {
+      "DefinedNames": [],
+      "IncludeDirs": [],
+      "UndefinedNames": []
+    },
+    "LEXERASSOCS": {},
+    "LICENSE": "",
+    "MAINSCRIPT": "",
+    "MAKEPARAMS": {
+      "MakeEnabled": false,
+      "MakeExecutable": "",
+      "MakeFile": "",
+      "MakeParameters": "",
+      "MakeTarget": "",
+      "MakeTestOnly": true
+    },
+    "MIXEDLANGUAGE": true,
+    "OTHERS": [
+      ".deepsource.toml",
+      ".github/FUNDING.yml",
+      ".github/ISSUE_TEMPLATE/bug_report.md",
+      ".github/ISSUE_TEMPLATE/custom.md",
+      ".github/ISSUE_TEMPLATE/feature_request.md",
+      ".github/dependabot.yml",
+      ".github/workflows/jekyll-gh-pages.yml",
+      ".github/workflows/node.js.yml",
+      ".gitignore",
+      "CODE_OF_CONDUCT.md",
+      "README.txt",
+      "SECURITY.md",
+      "cypress/fixtures/example.json",
+      "cypress/tsconfig.json",
+      "frontend/README.md",
+      "frontend/package.json",
+      "frontend/tsconfig.app.json",
+      "frontend/tsconfig.json",
+      "frontend/tsconfig.node.json",
+      "package.json"
+    ],
+    "OTHERTOOLSPARMS": {},
+    "PACKAGERSPARMS": {},
+    "PROGLANGUAGE": "JavaScript",
+    "PROJECTTYPE": "Other",
+    "PROJECTTYPESPECIFICDATA": {},
+    "RCCPARAMS": {
+      "CompressLevel": 0,
+      "CompressionDisable": false,
+      "CompressionThreshold": 70,
+      "PathPrefix": ""
+    },
+    "RESOURCES": [],
+    "SOURCES": [
+      "backend/filters/UserFilter.ts",
+      "backend/model/event.ts",
+      "backend/model/invitation.ts",
+      "backend/model/message.ts",
+      "backend/model/notification.ts",
+      "backend/model/request.ts",
+      "backend/model/session.ts",
+      "backend/model/setting.ts",
+      "backend/model/user.ts",
+      "backend/queries/EventOps.ts",
+      "backend/queries/InvitationOps.ts",
+      "backend/queries/MesOps.ts",
+      "backend/queries/NotifOps.ts",
+      "backend/queries/RequestOps.ts",
+      "backend/queries/SessionOps.ts",
+      "backend/queries/SettingOps.ts",
+      "backend/queries/UserOps.ts",
+      "backend/queries/logging.ts",
+      "backend/server/auth.ts",
+      "backend/server/db.ts",
+      "backend/server/endpoints.ts",
+      "backend/server/gridfs.ts",
+      "backend/server/imageUpload.ts",
+      "backend/server/process.ts",
+      "backend/server/signals.ts",
+      "backend/server/start.ts",
+      "backend/server/statuses.ts",
+      "cypress.config.js",
+      "cypress/e2e/createEvent.cy.ts",
+      "cypress/e2e/eventJoinRequest.cy.ts",
+      "cypress/e2e/eventManagement.cy.ts",
+      "cypress/e2e/eventNotificationAndEdit.cy.ts",
+      "cypress/e2e/joinedEventAccess.cy.ts",
+      "cypress/e2e/login.cy.ts",
+      "cypress/e2e/privateEventAccess.cy.ts",
+      "cypress/e2e/privateEventInvitation.cy.ts",
+      "cypress/e2e/privateEventOwner.cy.ts",
+      "cypress/e2e/publicEvent.cy.ts",
+      "cypress/e2e/publicEventAccess.cy.ts",
+      "cypress/e2e/publicEventOwner.cy.ts",
+      "cypress/e2e/registration.cy.ts",
+      "cypress/e2e/rsvpAcceptance.cy.ts",
+      "cypress/support/commands.js",
+      "cypress/support/commands.ts",
+      "cypress/support/e2e.ts",
+      "frontend/eslint.config.js",
+      "frontend/public/notificationWorker.js",
+      "frontend/src/dataTypes/type.ts",
+      "frontend/src/hook/hooks.ts",
+      "frontend/src/loader/adminLoader.ts",
+      "frontend/src/loader/authenticationLoader.ts",
+      "frontend/src/redux/admin/globalSettingSlice.ts",
+      "frontend/src/redux/auth/authSlice.ts",
+      "frontend/src/redux/auth/isAdminSlice.ts",
+      "frontend/src/redux/components/sidebarSlice.ts",
+      "frontend/src/redux/event/eventsSlice.ts",
+      "frontend/src/redux/event/joinedEventSlice.ts",
+      "frontend/src/redux/event/ownedEventsSlice.ts",
+      "frontend/src/redux/event/publicEventSlice.ts",
+      "frontend/src/redux/event/singleEventSlice.ts",
+      "frontend/src/redux/message/messageSlice.ts",
+      "frontend/src/redux/rsvp/rsvpSlice.ts",
+      "frontend/src/redux/search/searchSlice.ts",
+      "frontend/src/redux/store.ts",
+      "frontend/src/redux/user/usersSlice.ts",
+      "frontend/src/utils/customHooks.ts",
+      "frontend/src/utils/dateUtils.ts",
+      "frontend/src/utils/eventSearch.ts",
+      "frontend/src/utils/fetchHandler.ts",
+      "frontend/src/utils/imageProcessor.ts",
+      "frontend/src/utils/passwordValidator.ts",
+      "frontend/src/utils/validationStyles.ts",
+      "frontend/src/vite-env.d.ts",
+      "frontend/vite.config.ts"
+    ],
+    "SOURCESDIR": "",
+    "SPELLEXCLUDES": "",
+    "SPELLLANGUAGE": "",
+    "SPELLWORDS": "",
+    "TESTING_FRAMEWORK": "",
+    "TRANSLATIONEXCEPTIONS": [],
+    "TRANSLATIONPATTERN": "",
+    "TRANSLATIONS": [],
+    "TRANSLATIONSBINPATH": "",
+    "TRANSLATIONSOURCESTARTPATH": "",
+    "UICPARAMS": {
+      "Package": "",
+      "PackagesRoot": "",
+      "RcSuffix": ""
+    },
+    "VCS": "Git",
+    "VCSOPTIONS": {
+      "add": [
+        ""
+      ],
+      "checkout": [
+        ""
+      ],
+      "commit": [
+        ""
+      ],
+      "diff": [
+        ""
+      ],
+      "export": [
+        ""
+      ],
+      "global": [
+        ""
+      ],
+      "history": [
+        ""
+      ],
+      "log": [
+        ""
+      ],
+      "remove": [
+        ""
+      ],
+      "status": [
+        ""
+      ],
+      "tag": [
+        ""
+      ],
+      "update": [
+        ""
+      ]
+    },
+    "VCSOTHERDATA": {},
+    "VERSION": ""
+  }
+}
