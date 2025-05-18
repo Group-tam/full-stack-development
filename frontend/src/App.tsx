@@ -9,6 +9,7 @@ function App() {
 		let worker: Worker | null = null;
 		
 		const handleWorker = () => {
+			//We don't want the worker to work on any of these routes
 			const excludedPaths = ['/', '/login', '/register'];
 			const currentPath = window.location.pathname;
 

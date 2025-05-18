@@ -39,6 +39,7 @@ const NotificationsDropdown = () => {
 
 		window.addEventListener('notifications-update', handleUpdate);
 		return () => {
+			//clean up the event listener when the component is unmounted or re-rendered
 			window.removeEventListener('notifications-update', handleUpdate);
 		};
 	}, []);

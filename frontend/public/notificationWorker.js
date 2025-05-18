@@ -10,7 +10,7 @@ function startProcessing() {
         .then(async response => {
             if (response.ok) {
                 const result = await response.json();
-                if (result.processed > 0) {
+                if (result.processed > 0) { //Avoid unnecessary updates
                 self.postMessage('update'); // Trigger UI update
                 }
             }
@@ -23,12 +23,13 @@ function startProcessing() {
 
 self.onmessage = function(e) {
     switch(e.data.command) {
-        case 'start':
+        case 'start': //When App is mounted, the Worker will start if we are not any
+        //of the routes "/" "/login" "/register"
             if (!timerID) {
                 startProcessing();
             }
             break;
-        case 'stop':
+        case 'stop': //Stop if otherwise
             clearInterval(timerID);
             timerID = null;
             break;

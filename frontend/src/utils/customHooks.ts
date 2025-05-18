@@ -14,12 +14,6 @@ export const usePrevious = function <T>(value: T): T | undefined {
 
 	return previousRef.current;
 }
-/* Example usage:
-const [count, setCount] = useState(0);
-const prevCount = usePrevious(count);
-
-console.log(`Current: ${count}, Previous: ${prevCount ?? 'N/A'}`);
-setCount(count + 1); */
 
 // For API CALLS
 export const useFetch = <T>(url: string) => {
@@ -44,10 +38,3 @@ export const useFetch = <T>(url: string) => {
 	
 	return { data, loading, error };
 }
-	/* Example usage:
-	const { data, loading, error } = useFetch<User[]>('/users');
-
-if (loading) return <p>Loading...</p>;
-if (error) return <p>Error: {error.message}</p>;
-
-return <ul>{data?.map(user => <li key={user[.]id}>{user[.]name}</li>)}</ul>; */
